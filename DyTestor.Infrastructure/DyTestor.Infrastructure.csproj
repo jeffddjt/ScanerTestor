@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <None Update="AppConfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

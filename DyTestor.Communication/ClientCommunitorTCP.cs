@@ -41,13 +41,13 @@ namespace DyTestor.Communication
             }
             if (readbytes == 0)
             {
-                this.Error("The Server is disconnect!");
+                this.Error?.Invoke("The Server is disconnect!");
                 return;
             }
             byte[] buf = new byte[readbytes];
             Array.Copy(state.Buffer, 0, buf, 0, readbytes);
             state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
-            this.Received(buf);
+            this.Received?.Invoke(buf);
 
         }
 

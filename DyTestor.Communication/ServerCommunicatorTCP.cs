@@ -11,6 +11,7 @@ namespace DyTestor.Communication
     {
         public event ReceiveDelegate Received;
         public event ErrorDelegate Error;
+        public event NotifyDelegate Notify;
 
         private TcpListener listener;
         private Dictionary<string, TcpState> clientDict = new Dictionary<string, TcpState>();
@@ -39,6 +40,7 @@ namespace DyTestor.Communication
             this.clientDict.Add(state.ID, state);
             state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
             server.BeginAcceptTcpClient(new AsyncCallback(connectCallback), server);
+            this.Notify?.Invoke($"The client {state.ID} has already connected!");
         }
 
         private void receiveCallback(IAsyncResult ar)
@@ -55,14 +57,14 @@ namespace DyTestor.Communication
             }
             if(readbytes==0)
             {
-                this.Error("Client is already disconnect!");
+                this.Error?.Invoke($"Client {state.ID} is already disconnect!");
                 this.clientDict.Remove(state.ID);
                 return;
             }
             byte[] buf = new byte[readbytes];
             Array.Copy(state.Buffer, 0, buf, 0, readbytes);
             state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
-            this.Received(buf);
+            this.Received?.Invoke(buf);
         }
 
         public void Send(byte[] data,string remoteIP,int remotePort)

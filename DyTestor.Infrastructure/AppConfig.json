@@ -1,3 +1,4 @@
 ﻿{
-  "ListenPort": 12001
+  "ListenPort": 12001,
+  "ServerUrl": "http://127.0.0.1/api/QRCode/Add"
 }
