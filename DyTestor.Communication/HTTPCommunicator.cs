@@ -10,6 +10,10 @@ namespace DyTestor.Communication
 {
     public class HTTPCommunicator
     {
+        //public event ErrorDelegate Error;
+        public event EventHandler<DyEventArgs> Error;
+        public event ReceiveDelegate Received;
+
         private string url;
 
         public HTTPCommunicator()
@@ -17,7 +21,7 @@ namespace DyTestor.Communication
             this.url = AppConfig.SERVER_URL;
         }
 
-        public string Send(byte[] data)
+        public void Send(byte[] data)
         {
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
             request.ContentType = "application/x-www-form-urlencoded";
@@ -26,15 +30,32 @@ namespace DyTestor.Communication
             Stream stream = request.GetRequestStream();
             stream.Write(data, 0, data.Length);
             stream.Close();
+            HTTPState state = new HTTPState(request, data);
+            state.Request.BeginGetResponse(new AsyncCallback(postCallback),state);//.GetResponse() as HttpWebResponse;
 
-            HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-            Stream responseStream = response.GetResponseStream();
-            string str = string.Empty;
-            using (StreamReader reader = new StreamReader(responseStream, Encoding.UTF8))
+        }
+
+        private void postCallback(IAsyncResult ar)
+        {
+            HTTPState state = (HTTPState)ar.AsyncState;
+            try
             {
-                str = reader.ReadToEnd();
+                HttpWebResponse response = state.Request.EndGetResponse(ar) as HttpWebResponse;
+                Stream respStream = response.GetResponseStream();
+                string result = string.Empty;
+                using(StreamReader reader = new StreamReader(respStream, Encoding.UTF8))
+                {
+                    result = reader.ReadToEnd();
+                }
+                this.Received?.Invoke(Encoding.ASCII.GetBytes(result));
+
+            }            
+            catch(Exception ex)
+            {
+                string content = Encoding.UTF8.GetString(state.Data);
+                content = content.Split('=')[1];
+                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message, Data = Encoding.ASCII.GetBytes(content) });
             }
-            return str;
         }
     }
 }

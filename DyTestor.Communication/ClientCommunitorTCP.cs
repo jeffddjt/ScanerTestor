@@ -8,7 +8,12 @@ namespace DyTestor.Communication
     public class ClientCommunitorTCP 
     {
         public  event ReceiveDelegate Received;
-        public  event ErrorDelegate Error;
+        //public  event ErrorDelegate Error;
+        public event ConnectedDelegate ConnectedNotify;
+
+        public event EventHandler<DyEventArgs> Error;
+
+        public bool Connected = false;
 
         private TcpClient tcpClient;
         public ClientCommunitorTCP()
@@ -23,9 +28,19 @@ namespace DyTestor.Communication
         private void connectCallback(IAsyncResult ar)
         {
             TcpClient client = (TcpClient)ar.AsyncState;
-            client.EndConnect(ar);
-            TcpState state = new TcpState(client);
-            state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
+            try
+            {
+                client.EndConnect(ar);
+                TcpState state = new TcpState(client);
+                state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
+                this.Connected = true;
+                this.ConnectedNotify?.Invoke();
+            }
+            catch(Exception ex)
+            {
+                this.Connected = false;
+                this.Error?.Invoke(this,new DyEventArgs() { Message = "Connect to server failed!",Data=Encoding.ASCII.GetBytes(ex.Message) });
+            }
         }
 
         private void receiveCallback(IAsyncResult ar)
@@ -41,7 +56,8 @@ namespace DyTestor.Communication
             }
             if (readbytes == 0)
             {
-                this.Error?.Invoke("The Server is disconnect!");
+                this.Error?.Invoke(this,new DyEventArgs() { Message = "The Server is disconnect!" });
+                this.Connected = false;
                 return;
             }
             byte[] buf = new byte[readbytes];
@@ -62,6 +78,12 @@ namespace DyTestor.Communication
         {
             TcpState state = (TcpState)ar.AsyncState;
             state.Stream.EndWrite(ar);
+        }
+
+        public void Disconnect()
+        {
+            this.tcpClient.Close();
+            this.Connected = false;
         }
     }
 }

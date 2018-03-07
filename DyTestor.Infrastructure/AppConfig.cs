@@ -8,40 +8,14 @@ namespace DyTestor.Infrastructure
 {
     public static class AppConfig
     {
-        public static int LISTEN_PORT
-        {
-            get
-            {
-                return dyConfig.ListenPort;
-            }
-            set
-            {
-                dyConfig.ListenPort = value;
-            }
-        }
-        public static string SERVER_URL
-        {
-            get
-            {
-                return dyConfig.ServerUrl;
-            }
-            set
-            {
-                dyConfig.ServerUrl = value;
-            }
-        }
-        public static string SCANER_IP
-        {
-            get { return dyConfig.ScanerIP; }
-            set { dyConfig.ScanerIP = value; }
-        }
-        public static int SCANER_PORT
-        {
-            get { return dyConfig.ScanerPort; }
-            set { dyConfig.ScanerPort = value; }
-        }
-
-
+        public static int LISTEN_PORT { get {return dyConfig.ListenPort;} set { dyConfig.ListenPort = value;} }
+        public static string SERVER_URL { get{  return dyConfig.ServerUrl;}set{ dyConfig.ServerUrl = value; } }
+        public static string SCANER_IP { get { return dyConfig.ScanerIP; } set { dyConfig.ScanerIP = value; } }
+        public static int SCANER_PORT { get { return dyConfig.ScanerPort; } set { dyConfig.ScanerPort = value; } }
+        public static string DBSERVER_IP { get { return dyConfig.DBServerIP; } set { dyConfig.DBServerIP = value; } }
+        public static string DBNAME { get { return dyConfig.DBName; } set { dyConfig.DBName = value; } }
+        public static string DBPASSWORD { get { return dyConfig.DBPassword; } set { dyConfig.DBPassword = value; } }
+        public static string DBCONNECTIONSTRING { get { return $"Server={DBSERVER_IP};Database={DBNAME};User ID=sa;Password={DBPASSWORD};"; } }
 
         private static DyConfig dyConfig;
         private static string filename = Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath) + "\\AppConfig.json";
