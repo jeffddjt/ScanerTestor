@@ -1,4 +1,6 @@
-﻿using DyTestor.Communication;
+﻿using DyTestor.Application.Impl;
+using DyTestor.Communication;
+using DyTestor.DataObject;
 using DyTestor.Infrastructure;
 using System;
 using System.Text;
@@ -11,10 +13,12 @@ namespace DyTestor.Service
         private static ServerCommunicatorTCP server;
         private static ClientCommunitorTCP scaner;
         private static HTTPCommunicator httpCommunicator;
+        private static QRCodeService qrCodeService;
 
         static void Main(string[] args)
         {
             int port = AppConfig.LISTEN_PORT;
+            qrCodeService = new QRCodeService();
             server = new ServerCommunicatorTCP(port);
             server.Error += Server_Error;
             server.Received += Server_Received;
@@ -36,7 +40,12 @@ namespace DyTestor.Service
 
         private static void HttpCommunicator_Error(object sender, DyEventArgs e)
         {
-            Console.WriteLine($"{e.Message}\n{Encoding.ASCII.GetString(e.Data)}");
+            string content = Encoding.ASCII.GetString(e.Data);
+            Console.WriteLine($"{e.Message}\n{content}");
+            QRCodeDataObject code = new QRCodeDataObject();
+            code.Content = content;
+            code.CreateTime = DateTime.Now;
+            qrCodeService.Add(code);
         }
 
         private static void Scaner_ConnectedNotify()
