@@ -1,5 +1,5 @@
-﻿using DyTestor.Domain.Model;
-using DyTestor.Infrastructure;
+﻿using DyTestor.Configuration;
+using DyTestor.Domain.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

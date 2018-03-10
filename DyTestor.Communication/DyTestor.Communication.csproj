@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DyTestor.Infrastructure\DyTestor.Infrastructure.csproj" />
+    <ProjectReference Include="..\DyTestor.Configuration\DyTestor.Configuration.csproj" />
   </ItemGroup>
 
 </Project>

@@ -8,7 +8,6 @@ namespace DyTestor.Domain.Model
     {
         public string Content { get; set; }
         public string Line { get; set; }
-        public int Sort { get; set; }
         public DateTime CreateTime { get; set; }
         public bool Sync { get; set; }
     }

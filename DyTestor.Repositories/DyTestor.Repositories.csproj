@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DyTestor.Configuration\DyTestor.Configuration.csproj" />
     <ProjectReference Include="..\DyTestor.Domain\DyTestor.Domain.csproj" />
-    <ProjectReference Include="..\DyTestor.Infrastructure\DyTestor.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

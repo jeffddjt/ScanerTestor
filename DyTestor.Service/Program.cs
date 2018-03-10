@@ -1,7 +1,8 @@
-﻿using DyTestor.Application.Impl;
-using DyTestor.Communication;
+﻿using DyTestor.Communication;
+using DyTestor.Configuration;
 using DyTestor.DataObject;
 using DyTestor.Infrastructure;
+using DyTestor.SericeContracts;
 using System;
 using System.Text;
 using System.Threading;
@@ -13,12 +14,12 @@ namespace DyTestor.Service
         private static ServerCommunicatorTCP server;
         private static ClientCommunitorTCP scaner;
         private static HTTPCommunicator httpCommunicator;
-        private static QRCodeService qrCodeService;
+        private static IQRCodeService qrCodeService;
 
         static void Main(string[] args)
         {
             int port = AppConfig.LISTEN_PORT;
-            qrCodeService = new QRCodeService();
+            qrCodeService = ServiceLocator.GetService<IQRCodeService>();
             server = new ServerCommunicatorTCP(port);
             server.Error += Server_Error;
             server.Received += Server_Received;
@@ -33,9 +34,36 @@ namespace DyTestor.Service
 
             scaner.Received += Scaner_Received;
             scaner.ConnectedNotify += Scaner_ConnectedNotify;
-            scaner.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);            
+            scaner.OnDisconnect += Scaner_OnDisconnect;
+            connectScaner();           
             Console.WriteLine("Service has already started!");
+
+            Thread detectThread = new Thread(new ThreadStart(detect));
+            detectThread.IsBackground = true;
+            detectThread.Start();
+
             Console.ReadLine();            
+        }
+
+        private static void detect()
+        {
+            while (true)
+            {
+                Thread.Sleep(1000);
+                if (!scaner.Connected)
+                    connectScaner();
+            }
+        }
+
+        private static void Scaner_OnDisconnect(object sender, DyEventArgs e)
+        {
+            Console.WriteLine(e.Message);
+            connectScaner();
+        }
+
+        private static void connectScaner()
+        {
+            scaner.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
         }
 
         private static void HttpCommunicator_Error(object sender, DyEventArgs e)
@@ -87,7 +115,15 @@ namespace DyTestor.Service
                 case "Stop":
                     stopScan();
                     break;
+                case "GetState":
+                    getState();
+                    break;
             }
+        }
+
+        private static void getState()
+        {
+
         }
 
         private static void startScan()

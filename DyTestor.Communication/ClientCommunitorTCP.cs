@@ -12,6 +12,7 @@ namespace DyTestor.Communication
         public event ConnectedDelegate ConnectedNotify;
 
         public event EventHandler<DyEventArgs> Error;
+        public event EventHandler<DyEventArgs> OnDisconnect;
 
         public bool Connected = false;
 
@@ -39,6 +40,7 @@ namespace DyTestor.Communication
             catch(Exception ex)
             {
                 this.Connected = false;
+
                 this.Error?.Invoke(this,new DyEventArgs() { Message = "Connect to server failed!",Data=Encoding.ASCII.GetBytes(ex.Message) });
             }
         }
@@ -56,8 +58,8 @@ namespace DyTestor.Communication
             }
             if (readbytes == 0)
             {
-                this.Error?.Invoke(this,new DyEventArgs() { Message = "The Server is disconnect!" });
                 this.Connected = false;
+                this.OnDisconnect?.Invoke(this, new DyEventArgs() { Message= "The Server is disconnect!"});
                 return;
             }
             byte[] buf = new byte[readbytes];

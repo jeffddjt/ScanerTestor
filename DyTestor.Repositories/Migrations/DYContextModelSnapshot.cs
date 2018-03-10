@@ -31,8 +31,6 @@ namespace DyTestor.Repositories.Migrations
 
                     b.Property<string>("Line");
 
-                    b.Property<int>("Sort");
-
                     b.Property<bool>("Sync");
 
                     b.HasKey("ID");

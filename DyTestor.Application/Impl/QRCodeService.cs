@@ -1,18 +1,19 @@
 ﻿using DyTestor.DataObject;
 using DyTestor.Domain.Model;
 using DyTestor.Repositories.Repository;
+using DyTestor.SericeContracts;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace DyTestor.Application.Impl
 {
-    public class QRCodeService
+    public class QRCodeService:IQRCodeService
     {
         private QRCodeRepository repository;
-        public QRCodeService()
+        public QRCodeService(QRCodeRepository repository)
         {
-            this.repository = new QRCodeRepository();
+            this.repository = repository;
         }
 
         public void Add(QRCodeDataObject qrcode)

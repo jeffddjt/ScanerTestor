@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace DyTestor.Infrastructure
+namespace DyTestor.Configuration
 {
     public static class AppConfig
     {
@@ -21,11 +21,16 @@ namespace DyTestor.Infrastructure
         private static string filename = Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath) + "\\AppConfig.json";
         static AppConfig()
         {
+            GetConfig();
+        }
+
+        public static DyConfig GetConfig()
+        {
             if (!File.Exists(filename))
             {
                 dyConfig = new DyConfig();
                 Save();
-                return;
+                return dyConfig;
             }
 
             FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
@@ -37,7 +42,9 @@ namespace DyTestor.Infrastructure
             {
                 JObject json = JObject.Parse(jsonString);
                 dyConfig = (DyConfig)json.ToObject(typeof(DyConfig));
-            }catch(Exception ex)
+                return dyConfig;
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }

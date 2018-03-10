@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <ApplicationIcon />
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,10 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DyTestor.Application\DyTestor.Application.csproj" />
     <ProjectReference Include="..\DyTestor.Communication\DyTestor.Communication.csproj" />
     <ProjectReference Include="..\DyTestor.Infrastructure\DyTestor.Infrastructure.csproj" />
-    <ProjectReference Include="..\DyTestor.Repositories\DyTestor.Repositories.csproj" />
+    <ProjectReference Include="..\DyTestor.SericeContracts\DyTestor.ServiceContracts.csproj" />
   </ItemGroup>
 
 </Project>

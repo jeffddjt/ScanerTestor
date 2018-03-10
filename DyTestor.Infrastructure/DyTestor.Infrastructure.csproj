@@ -5,7 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DyTestor.Application\DyTestor.Application.csproj" />
+    <ProjectReference Include="..\DyTestor.Domain\DyTestor.Domain.csproj" />
+    <ProjectReference Include="..\DyTestor.SericeContracts\DyTestor.ServiceContracts.csproj" />
   </ItemGroup>
 
 </Project>

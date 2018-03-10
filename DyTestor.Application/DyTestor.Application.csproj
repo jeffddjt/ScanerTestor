@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DyTestor.DataObject\DyTestor.DataObject.csproj" />
     <ProjectReference Include="..\DyTestor.Repositories\DyTestor.Repositories.csproj" />
+    <ProjectReference Include="..\DyTestor.SericeContracts\DyTestor.ServiceContracts.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DyTestor.Infrastructure
+namespace DyTestor.Configuration
 {
     public class DyConfig
     {
