@@ -30,35 +30,36 @@ namespace DyTestor.Service
             httpCommunicator.Error += HttpCommunicator_Error; ;
             httpCommunicator.Received += HttpCommunicator_Received;
 
-            scaner = new ClientCommunitorTCP();
+            initScaner();
 
-            scaner.Received += Scaner_Received;
-            scaner.ConnectedNotify += Scaner_ConnectedNotify;
-            scaner.OnDisconnect += Scaner_OnDisconnect;
-            connectScaner();           
             Console.WriteLine("Service has already started!");
 
-            Thread detectThread = new Thread(new ThreadStart(detect));
-            detectThread.IsBackground = true;
-            detectThread.Start();
 
             Console.ReadLine();            
         }
 
-        private static void detect()
+        private static void initScaner()
         {
-            while (true)
-            {
-                Thread.Sleep(1000);
-                if (!scaner.Connected)
-                    connectScaner();
-            }
+            if (scaner != null)
+                scaner.Dispose();
+            scaner = new ClientCommunitorTCP();
+            scaner.Received += Scaner_Received;
+            scaner.ConnectedNotify += Scaner_ConnectedNotify;
+            scaner.OnDisconnect += Scaner_OnDisconnect;
+            scaner.ConnectError += Scaner_ConnectError;
+            scaner.Error += Scaner_ConnectError;
+            connectScaner();
         }
+
+        private static void Scaner_ConnectError(object sender, DyEventArgs e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
 
         private static void Scaner_OnDisconnect(object sender, DyEventArgs e)
         {
             Console.WriteLine(e.Message);
-            connectScaner();
         }
 
         private static void connectScaner()
@@ -106,8 +107,8 @@ namespace DyTestor.Service
 
         private static void Server_Received(byte[] buf)
         {
-            string cmd = Encoding.ASCII.GetString(buf);
-            switch (cmd)
+            CommunicationData msg = (CommunicationData)Serialization.Deserialize(buf);
+            switch (msg.Command)
             {
                 case "Start":
                     startScan();
@@ -118,7 +119,28 @@ namespace DyTestor.Service
                 case "GetState":
                     getState();
                     break;
+                case "GetConfig":
+                    sendGetConfig(msg);
+                    break;
+                case "SaveConfig":
+                    sendSaveConfig(msg);
+                    break;
             }
+        }
+
+        private static void sendSaveConfig(CommunicationData msg)
+        {
+            DyConfig config = (DyConfig)msg.Data;
+            AppConfig.Save(config);
+            initScaner();
+        }
+
+        private static void sendGetConfig(CommunicationData msg)
+        {
+            DyConfig config = AppConfig.GetConfig();
+            msg.Data = config;
+            byte[] buf = Serialization.Serialize(msg);
+            server.Send(buf, msg.ClientIP, msg.ClientPort);
         }
 
         private static void getState()
@@ -137,7 +159,6 @@ namespace DyTestor.Service
             
             byte[] cmd = Encoding.ASCII.GetBytes("LOFF\r");
             scaner.Send(cmd);
-            scaner.Disconnect();
         }
 
         private static void Server_Error(string msg)

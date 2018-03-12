@@ -9,60 +9,69 @@
 
 <html>
 <head>
-    <meta name="viewport" content="width=device-width" />    
+    <meta name="viewport" content="width=device-width" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    
-    <title>Index</title>
+
+    <title>Fixed QRCode Scaner Configuration</title>
     <style>
-        body{
-            margin:0;
-            padding:0;
+        body {
+            margin: 0;
+            padding: 0;
         }
-        .header{
-            background:#0000ff;
-            height:100px;
-            padding-left:50px;
-            line-height:100px;
-            color:#ffffff;
-            text-shadow:5px 5px 10px #000;
-            font-size:30px;
-            font-weight:700;
-            letter-spacing:3px;
+
+        .header {
+            background: #0000ff;
+            height: 100px;
+            padding-left: 50px;
+            line-height: 100px;
+            color: #ffffff;
+            text-shadow: 5px 5px 10px #000;
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: 3px;
         }
-        .configuration{
-            position:absolute;
-            border:1px solid #a8a8a8;
-            box-shadow:0 0 10px #000;
-            border-radius:5px;
-            top:110px;
-            left:10px;
-            right:10px;
-            bottom:60px;
+
+        .configuration {
+            position: absolute;
+            border: 1px solid #a8a8a8;
+            box-shadow: 0 0 10px #000;
+            border-radius: 5px;
+            top: 110px;
+            left: 10px;
+            right: 10px;
+            bottom: 60px;
         }
-        .footer{
-            height:50px;
-            width:100%;
-            background:#0000ff;
-            position:absolute;
-            bottom:0;
+
+        .footer {
+            height: 50px;
+            width: 100%;
+            line-height: 50px;
+            text-align: center;
+            color: #fff;
+            background: #0000ff;
+            position: absolute;
+            bottom: 0;
         }
-        input[type=text]{
-            height:25px;
-            width:300px;
-            padding:3px;
+
+        input[type=text] {
+            height: 25px;
+            width: 300px;
+            padding: 3px;
         }
-        li{
-            margin-top:5px;
-            margin-bottom:5px;
+
+        li {
+            margin-top: 5px;
+            margin-bottom: 5px;
         }
-        td{
-            padding:3px;
+
+        td {
+            padding: 3px;
         }
     </style>
     <script>
         function save() {
-            $.post("Home/SaveConfig", $("#qrCode").serialize(), function (res) { 
-                alert(res);
+            $.post("Home/SaveConfig", $("#qrCode").serialize(), function (res) {
+                alert("The configuration has been saved to server successfully!");
             });
 
         }
@@ -73,34 +82,48 @@
         Fixed QRCode Scaner Configuration
     </div>
     <div class="configuration">
-        @{ 
+        @{
             DyConfig config = ViewBag.Configuration;
-            Type type = config.GetType();
+            <form id="qrCode">
+                <table style="width:400px;margin:0 auto;">
+                    <tr style="height:50px;">
+                        <td colspan="2" style="text-align:center;">
+                            <span style="font-size:20px;font-weight:700;">Configuration Information</span>
+                        </td>
+                    </tr>
+                    @if (config != null)
+                    {
+                        Type type = config.GetType();
+                        foreach (PropertyInfo property in type.GetProperties())
+                        {
+                            <tr>
+                                <td>@property.Name:</td>
+                                <td>
+                                    <input type="text" name="@property.Name" value="@(property.GetValue(config))" />
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="2" style="text-align:center;">
+                                <input type="button" onclick="save()" value="Save" style="height:25px;" />
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" style="text-align:center;">
+                                Can not load the configuration!
+                            </td>
+                        </tr>
+
+                    }
+                </table>
+            </form>
         }
-        <form id="qrCode">
-        <table style="width:400px;margin:0 auto;">
-            <tr style="height:50px;">
-                <td colspan="2" style="text-align:center;">
-                <span style="font-size:20px;font-weight:700;">Configuration Information</span>
-                </td>
-            </tr>
-            @foreach(PropertyInfo property in type.GetProperties())
-            {
-                <tr>
-                    <td>@property.Name:</td>
-                    <td>
-                        <input type="text" name="@property.Name" value="@(property.GetValue(config))" />
-                    </td>
-                </tr>
-            }
-            <tr>
-                <td colspan="2" style="text-align:center;">
-                    <input type="button" onclick="save()" value="Save" style="height:25px;" />
-                </td>
-            </tr>
-        </table>
-        </form>
     </div>
-    <div class="footer"></div>
+    <div class="footer">
+        Copyright (c) 2017 Xiaoyu Video Communications ( Beijing ) Technology Co. Ltd
+    </div>
 </body>
 </html>

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace DyTestor.Configuration
 {
+    [Serializable]
     public class DyConfig
     {
         public int ListenPort { get; set; }

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DyTestor.Communication\DyTestor.Communication.csproj" />
     <ProjectReference Include="..\DyTestor.Configuration\DyTestor.Configuration.csproj" />
   </ItemGroup>
 

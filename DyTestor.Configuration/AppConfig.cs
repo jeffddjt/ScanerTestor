@@ -55,10 +55,16 @@ namespace DyTestor.Configuration
             JObject json = JObject.FromObject(dyConfig);
             string jsonString = json.ToString();
             byte[] buf = Encoding.UTF8.GetBytes(jsonString);
-            FileStream fs = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+            FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite);
             fs.Write(buf, 0, buf.Length);
             fs.Flush();
             fs.Close();
+        }
+
+        public static void Save(DyConfig config)
+        {
+            dyConfig = config;
+            Save();
         }
     }
 }

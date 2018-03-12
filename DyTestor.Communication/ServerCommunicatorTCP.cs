@@ -69,7 +69,7 @@ namespace DyTestor.Communication
 
         public void Send(byte[] data,string remoteIP,int remotePort)
         {
-            string id = string.Format("{0}{1}", remoteIP, remotePort);
+            string id = string.Format("{0}:{1}", remoteIP, remotePort);
             TcpState state = this.clientDict[id];
             state.Stream.BeginWrite(data, 0, data.Length, new AsyncCallback(sendCallback), state);
         }

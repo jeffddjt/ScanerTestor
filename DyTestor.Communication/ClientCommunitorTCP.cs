@@ -5,7 +5,7 @@ using System.Text;
 
 namespace DyTestor.Communication
 {
-    public class ClientCommunitorTCP 
+    public class ClientCommunitorTCP : IDisposable
     {
         public  event ReceiveDelegate Received;
         //public  event ErrorDelegate Error;
@@ -13,6 +13,7 @@ namespace DyTestor.Communication
 
         public event EventHandler<DyEventArgs> Error;
         public event EventHandler<DyEventArgs> OnDisconnect;
+        public event EventHandler<DyEventArgs> ConnectError;
 
         public bool Connected = false;
 
@@ -23,7 +24,15 @@ namespace DyTestor.Communication
         }
         public void Connect(string serveriP,int serverPort)
         {
-            this.tcpClient.BeginConnect(serveriP, serverPort, new AsyncCallback(connectCallback), this.tcpClient);
+            try
+            {
+                this.tcpClient.BeginConnect(serveriP, serverPort, new AsyncCallback(connectCallback), this.tcpClient);
+            }
+            catch(Exception ex)
+            {
+                this.Connected = false;
+                this.ConnectError?.Invoke(this, new DyEventArgs() { Message = $"Connect to {serveriP}:{serverPort} failed!", Data = Encoding.ASCII.GetBytes(ex.Message) });
+            }
         }
 
         private void connectCallback(IAsyncResult ar)
@@ -40,8 +49,7 @@ namespace DyTestor.Communication
             catch(Exception ex)
             {
                 this.Connected = false;
-
-                this.Error?.Invoke(this,new DyEventArgs() { Message = "Connect to server failed!",Data=Encoding.ASCII.GetBytes(ex.Message) });
+                this.Error?.Invoke(this,new DyEventArgs() { Message = $"Connect to Scanner failed!", Data=Encoding.ASCII.GetBytes(ex.Message) });
             }
         }
 
@@ -63,9 +71,9 @@ namespace DyTestor.Communication
                 return;
             }
             byte[] buf = new byte[readbytes];
-            Array.Copy(state.Buffer, 0, buf, 0, readbytes);
-            state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
+            Array.Copy(state.Buffer, 0, buf, 0, readbytes);            
             this.Received?.Invoke(buf);
+            state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
 
         }
 
@@ -82,10 +90,29 @@ namespace DyTestor.Communication
             state.Stream.EndWrite(ar);
         }
 
-        public void Disconnect()
+        public void Dispose()
         {
+            foreach(var k in this.Error.GetInvocationList())
+            {
+                this.Error -= new EventHandler<DyEventArgs>(k as EventHandler<DyEventArgs>);
+            }
+            foreach(var k in this.ConnectedNotify.GetInvocationList())
+            {
+                this.ConnectedNotify -= new ConnectedDelegate(k as ConnectedDelegate);
+            }
+            foreach(var k in this.ConnectError.GetInvocationList())
+            {
+                this.ConnectError -= new EventHandler<DyEventArgs>(k as EventHandler<DyEventArgs>);
+            }
+            foreach(var k in this.OnDisconnect.GetInvocationList())
+            {
+                this.OnDisconnect -= new EventHandler<DyEventArgs>(k as EventHandler<DyEventArgs>);
+            }
+            foreach(var k in this.Received.GetInvocationList())
+            {
+                this.Received -= new ReceiveDelegate(k as ReceiveDelegate);
+            }
             this.tcpClient.Close();
-            this.Connected = false;
         }
     }
 }
