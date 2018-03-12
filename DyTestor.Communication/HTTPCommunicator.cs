@@ -14,16 +14,9 @@ namespace DyTestor.Communication
         public event EventHandler<DyEventArgs> Error;
         public event ReceiveDelegate Received;
 
-        private string url;
-
-        public HTTPCommunicator()
-        {
-            this.url = AppConfig.SERVER_URL;
-        }
-
         public void Send(byte[] data)
         {
-            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            HttpWebRequest request = WebRequest.Create(AppConfig.SERVER_URL) as HttpWebRequest;
             request.ContentType = "application/x-www-form-urlencoded";
             request.Method = "POST";
             request.ContentLength = data.Length;
@@ -52,9 +45,10 @@ namespace DyTestor.Communication
             }            
             catch(Exception ex)
             {
-                string content = Encoding.UTF8.GetString(state.Data);
-                content = content.Split('=')[1];
-                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message, Data = Encoding.ASCII.GetBytes(content) });
+                string receive = Encoding.UTF8.GetString(state.Data);
+                string content = receive.Split("&")[0].Split("=")[1];
+                string line = receive.Split("&")[1].Split("=")[1];
+                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message, Data = Encoding.ASCII.GetBytes($"{content}&{line}") });
             }
         }
     }

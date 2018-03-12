@@ -69,10 +69,13 @@ namespace DyTestor.Service
 
         private static void HttpCommunicator_Error(object sender, DyEventArgs e)
         {
-            string content = Encoding.ASCII.GetString(e.Data);
-            Console.WriteLine($"{e.Message}\n{content}");
+            string receive= Encoding.ASCII.GetString(e.Data);
+            string content = receive.Split("&")[0];
+            string line = receive.Split("&")[1];
+            Console.WriteLine($"{e.Message}\n{content},{line}");
             QRCodeDataObject code = new QRCodeDataObject();
-            code.Content = content;
+            code.Code = content;
+            code.AssemblyLine = line;
             code.CreateTime = DateTime.Now;
             qrCodeService.Add(code);
         }
@@ -94,7 +97,7 @@ namespace DyTestor.Service
             if (str.Contains("[") || str.Contains("]"))
                 return;
 
-            str = $"content={str}";
+            str = $"Code={str}&AssemblyLine={AppConfig.ASSEMBLY_LINE}";
             byte[] data = Encoding.UTF8.GetBytes(str);
             httpCommunicator.Send(data);
 

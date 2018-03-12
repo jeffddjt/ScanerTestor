@@ -1,0 +1,87 @@
+﻿@using DyTestor.DataObject;
+@using System.Reflection;
+@{
+    Layout = null;
+    Type type = typeof(QRCodeDataObject);
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <style>
+        thead{
+            background:#c0c0c0;
+        }
+        tfoot{
+            background:#d8d8d8;
+        }
+        tr{
+            height:30px;
+        }
+        th,td{
+            border:1px solid #000;
+            text-align:center;
+        }
+        .search{
+            height:30px;
+            line-height:30px;
+            margin-bottom:10px;
+            margin-left:20px;
+        }
+        input{
+            height:25px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <form method="post">
+            <div class="search">
+                <select name="date" style="height:25px;">
+                    @foreach (DateTime date in ViewBag.DateList)
+                    {
+                        <option value="@date" selected>@($"{date.Year}-{date.Month}-{date.Day}")</option>
+                    }
+                </select>
+                <input type="submit" value="View" />
+            </div>
+        </form>
+    </div>
+    <table cellspacing="0" cellpadding="0" style="width:100%;margin:0 auto;border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th colspan="@(type.GetProperties().Count())">Count:@((ViewBag.CodeList as List<QRCodeDataObject>).Count)</th>
+            </tr>
+            <tr>
+                @foreach (PropertyInfo property in type.GetProperties())
+        {
+            <th>@property.Name</th>
+
+}
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(QRCodeDataObject code in ViewBag.CodeList)
+            {
+                <tr>
+                @foreach(PropertyInfo property in type.GetProperties())
+                {
+                    <td>@property.GetValue(code)</td>
+
+                }
+                </tr>
+            }
+            
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="@(type.GetProperties().Count())">Count:@((ViewBag.CodeList as List<QRCodeDataObject>).Count)</td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

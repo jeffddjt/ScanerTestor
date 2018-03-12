@@ -7,6 +7,9 @@ namespace DyTestor.SericeContracts
 {
     public interface IQRCodeService
     {
-        void Add(QRCodeDataObject code);
+        QRCodeDataObject Add(QRCodeDataObject code);
+        List<QRCodeDataObject> GetList();
+        List<DateTime> GetDateList();
+        List<QRCodeDataObject> GetList(DateTime date);
     }
 }

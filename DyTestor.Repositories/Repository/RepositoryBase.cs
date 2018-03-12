@@ -3,6 +3,7 @@ using DyTestor.Repositories.DAO;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DyTestor.Repositories.Repository
@@ -15,6 +16,10 @@ namespace DyTestor.Repositories.Repository
             this.context = new DYContext();
         }
 
+        public IEnumerable<TAggregateRoot> GetAll()
+        {
+            return this.context.Set<TAggregateRoot>();
+        }
 
         public void Add(TAggregateRoot agg)
         {

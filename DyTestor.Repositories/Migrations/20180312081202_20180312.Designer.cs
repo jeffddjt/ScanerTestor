@@ -11,9 +11,10 @@ using System;
 namespace DyTestor.Repositories.Migrations
 {
     [DbContext(typeof(DYContext))]
-    partial class DYContextModelSnapshot : ModelSnapshot
+    [Migration("20180312081202_20180312")]
+    partial class _20180312
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

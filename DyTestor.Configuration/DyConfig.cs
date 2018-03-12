@@ -11,6 +11,7 @@ namespace DyTestor.Configuration
         public string ServerUrl { get; set; }
         public string ScanerIP { get; set; }
         public int ScanerPort { get; set; }
+        public string AssemblyLine { get; set; }
         public string DBServerIP { get; set; }
         public string DBName { get; set; }
         public string DBPassword { get; set; }
@@ -22,7 +23,7 @@ namespace DyTestor.Configuration
             this.ServerUrl = "http://127.0.0.1/api/QRCode/Add";
             this.ScanerIP = "192.168.40.251";
             this.ScanerPort = 9014;
-
+            this.AssemblyLine = "1";
             this.DBServerIP = "192.168.40.251";
             this.DBName = "ScanerTestor";
             this.DBPassword = "aaaa1111!";

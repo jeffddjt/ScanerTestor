@@ -6,8 +6,8 @@ namespace DyTestor.Domain.Model
 {
     public class QRCode :AggregateRoot
     {
-        public string Content { get; set; }
-        public string Line { get; set; }
+        public string Code { get; set; }
+        public string AssemblyLine { get; set; }
         public DateTime CreateTime { get; set; }
         public bool Sync { get; set; }
     }
