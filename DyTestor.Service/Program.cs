@@ -37,7 +37,7 @@ namespace DyTestor.Service
                   while (true)
                   {
                       Thread.Sleep(2000);
-                      if (scaner.Connected)
+                      if (scaner!=null&&scaner.Connected)
                           continue;
                       TcpClient client = new TcpClient();
                       try
