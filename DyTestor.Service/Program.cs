@@ -5,6 +5,7 @@ using DyTestor.Infrastructure;
 using DyTestor.SericeContracts;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
@@ -31,7 +32,33 @@ namespace DyTestor.Service
             httpCommunicator.Error += HttpCommunicator_Error; ;
             httpCommunicator.Received += HttpCommunicator_Received;
 
-            initScaner();
+            Thread thread = new Thread(() =>
+              {
+                  while (true)
+                  {
+                      Thread.Sleep(2000);
+                      if (scaner.Connected)
+                          continue;
+                      TcpClient client = new TcpClient();
+                      try
+                      {
+                          client.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
+                          if (client.Connected)
+                          {
+                              client.Close();
+                              initScaner();
+
+                          }
+                      }
+                      catch
+                      {
+                          continue;
+                      }
+                  }
+
+              });
+            thread.IsBackground = true;
+            thread.Start();
 
             Console.WriteLine("Service has already started!");
 
