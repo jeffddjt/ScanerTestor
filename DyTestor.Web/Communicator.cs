@@ -38,7 +38,7 @@ namespace DyTestor.Web
         }
         public void SaveConfig(DyConfig config)
         {
-            this.client.Connect("127.0.0.1", 12001);
+            this.client.Connect("device", 12001);
             CommunicationData msg = new CommunicationData();
             msg.Command = "SaveConfig";
             msg.Data = config;
