@@ -3,6 +3,7 @@ using DyTestor.Configuration;
 using DyTestor.DataObject;
 using DyTestor.Infrastructure;
 using DyTestor.SericeContracts;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
 using System.Threading;
@@ -96,10 +97,13 @@ namespace DyTestor.Service
             string str = Encoding.ASCII.GetString(buf);
             if (str.Contains("[") || str.Contains("]"))
                 return;
-
-            str = $"Code={str}&AssemblyLine={AppConfig.ASSEMBLY_LINE}";
-            byte[] data = Encoding.UTF8.GetBytes(str);
-            httpCommunicator.Send(data);
+            QRCodeDataObject code = new QRCodeDataObject();
+            code.Code = str;
+            code.AssemblyLine = AppConfig.ASSEMBLY_LINE;
+            code.CreateTime = DateTime.Now;
+            JObject obj = JObject.FromObject(code);
+            byte[] data = Encoding.UTF8.GetBytes(obj.ToString());
+            httpCommunicator.Send(data,"text/json");
 
         }
 

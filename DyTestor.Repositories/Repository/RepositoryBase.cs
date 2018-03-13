@@ -14,6 +14,7 @@ namespace DyTestor.Repositories.Repository
         public RepositoryBase()
         {
             this.context = new DYContext();
+            this.context.Database.Migrate();
         }
 
         public IEnumerable<TAggregateRoot> GetAll()

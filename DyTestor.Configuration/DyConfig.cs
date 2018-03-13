@@ -20,11 +20,11 @@ namespace DyTestor.Configuration
         public DyConfig()
         {
             this.ListenPort = 12001;
-            this.ServerUrl = "http://127.0.0.1/api/QRCode/Add";
-            this.ScanerIP = "192.168.40.251";
-            this.ScanerPort = 9014;
+            this.ServerUrl = "http://testor.bclzdd.com/api/QRCode/Add";
+            this.ScanerIP = "192.168.100.100";
+            this.ScanerPort = 9004;
             this.AssemblyLine = "1";
-            this.DBServerIP = "192.168.40.251";
+            this.DBServerIP = "db";
             this.DBName = "ScanerTestor";
             this.DBPassword = "aaaa1111!";
         }

@@ -43,7 +43,7 @@
                 <select name="date" style="height:25px;">
                     @foreach (DateTime date in ViewBag.DateList)
                     {
-                        <option value="@date" selected>@($"{date.Year}-{date.Month}-{date.Day}")</option>
+                        <option value="@date" selected="@(date==ViewBag.Date?"selected":string.Empty)">@($"{date.Year}-{date.Month}-{date.Day}")</option>
                     }
                 </select>
                 <input type="submit" value="View" />

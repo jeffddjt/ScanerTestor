@@ -19,9 +19,15 @@ namespace DyTestor.Configuration
         public static string ASSEMBLY_LINE { get { return dyConfig.AssemblyLine; } }
 
         private static DyConfig dyConfig;
-        private static string filename = Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath) + "\\AppConfig.json";
+        private static string filename;
         static AppConfig()
         {
+            string path = Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+            string file= "AppConfig.json";
+            if (Environment.OSVersion.Platform.ToString().ToLower().Contains("win"))
+                filename = path + "\\" + file;
+            else
+                filename = path + "/" + file;
             GetConfig();
         }
 
