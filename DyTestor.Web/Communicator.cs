@@ -18,7 +18,7 @@ namespace DyTestor.Web
         }
         public DyConfig GetConfig()
         {
-            this.client.Connect("127.0.0.1", 12001);
+            this.client.Connect("device", 12001);
             CommunicationData msg = new CommunicationData();
             msg.ClientIP = this.client.Client.LocalEndPoint.ToString().Split(":")[0];
             msg.ClientPort = int.Parse(this.client.Client.LocalEndPoint.ToString().Split(":")[1]);
