@@ -130,10 +130,9 @@ namespace DyTestor.Service
             QRCodeDataObject code = new QRCodeDataObject();
             code.Code = str;
             code.AssemblyLine = AppConfig.ASSEMBLY_LINE;
-            code.CreateTime = DateTime.Now;
-            JObject obj = JObject.FromObject(code);
-            byte[] data = Encoding.UTF8.GetBytes(obj.ToString());
-            httpCommunicator.Send(data,"application/json");
+            code.CreateTime = DateTime.Now;            
+            byte[] data = Encoding.UTF8.GetBytes(code.ToURLParameter());
+            httpCommunicator.Send(data);
 
         }
 

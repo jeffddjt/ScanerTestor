@@ -14,10 +14,10 @@ namespace DyTestor.Communication
         public event EventHandler<DyEventArgs> Error;
         public event ReceiveDelegate Received;
 
-        public void Send(byte[] data,string contentType)
+        public void Send(byte[] data)
         {
             HttpWebRequest request = WebRequest.Create(AppConfig.SERVER_URL) as HttpWebRequest;
-            request.ContentType = contentType;
+            request.ContentType = "application/x-www-form-urlencoded";
             request.Method = "POST";
             request.ContentLength = data.Length;
             Stream stream = request.GetRequestStream();
