@@ -50,8 +50,9 @@ namespace DyTestor.Service
 
                           }
                       }
-                      catch
+                      catch(Exception ex)
                       {
+                          Console.WriteLine(ex.Message);
                           continue;
                       }
                   }
