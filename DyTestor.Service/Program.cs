@@ -45,6 +45,7 @@ namespace DyTestor.Service
                           client.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
                           if (client.Connected)
                           {
+                              Console.WriteLine("ok");
                               client.Close();
                               initScaner();
 
