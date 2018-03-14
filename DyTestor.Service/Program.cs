@@ -110,6 +110,7 @@ namespace DyTestor.Service
 
         private static void Scaner_ConnectedNotify()
         {
+            Console.WriteLine("The scaner has already connected!");
             startScan();
         }
 
