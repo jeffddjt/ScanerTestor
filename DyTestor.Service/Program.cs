@@ -133,7 +133,7 @@ namespace DyTestor.Service
             code.CreateTime = DateTime.Now;
             JObject obj = JObject.FromObject(code);
             byte[] data = Encoding.UTF8.GetBytes(obj.ToString());
-            httpCommunicator.Send(data,"text/json");
+            httpCommunicator.Send(data,"application/json");
 
         }
 
