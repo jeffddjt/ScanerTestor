@@ -40,10 +40,10 @@ namespace DyTestor.Service
                       if (scaner!=null&&scaner.Connected)
                           continue;
                       TcpClient client = new TcpClient();
+                              Console.WriteLine("ok");
                       try
                       {
                           client.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
-                              Console.WriteLine("ok");
                           if (client.Connected)
                           {
                               client.Close();
