@@ -61,7 +61,7 @@ namespace DyTestor.Service
             //  });
             //thread.IsBackground = true;
             //thread.Start();
-
+            initScaner();
             Console.WriteLine("Service has already started!");
 
 
