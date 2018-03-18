@@ -32,35 +32,35 @@ namespace DyTestor.Service
             httpCommunicator.Error += HttpCommunicator_Error; ;
             httpCommunicator.Received += HttpCommunicator_Received;
 
-            Thread thread = new Thread(() =>
-              {
-                  while (true)
-                  {
-                      Thread.Sleep(2000);
-                      if (scaner!=null&&scaner.Connected)
-                          continue;
-                      TcpClient client = new TcpClient();
-                              Console.WriteLine("ok");
-                      try
-                      {
-                          client.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
-                          if (client.Connected)
-                          {
-                              client.Close();
-                              initScaner();
+            //Thread thread = new Thread(() =>
+            //  {
+            //      while (true)
+            //      {
+            //          Thread.Sleep(2000);
+            //          if (scaner!=null&&scaner.Connected)
+            //              continue;
+            //          TcpClient client = new TcpClient();
+            //                  Console.WriteLine("ok");
+            //          try
+            //          {
+            //              client.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
+            //              if (client.Connected)
+            //              {
+            //                  client.Close();
+            //                  initScaner();
 
-                          }
-                      }
-                      catch(Exception ex)
-                      {
-                          Console.WriteLine(ex.Message);
-                          continue;
-                      }
-                  }
+            //              }
+            //          }
+            //          catch(Exception ex)
+            //          {
+            //              Console.WriteLine(ex.Message);
+            //              continue;
+            //          }
+            //      }
 
-              });
-            thread.IsBackground = true;
-            thread.Start();
+            //  });
+            //thread.IsBackground = true;
+            //thread.Start();
 
             Console.WriteLine("Service has already started!");
 
