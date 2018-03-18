@@ -70,8 +70,6 @@ namespace DyTestor.Service
 
         private static void initScaner()
         {
-            if (scaner != null)
-                scaner.Dispose();
             scaner = new ClientCommunitorTCP();
             scaner.Received += Scaner_Received;
             scaner.ConnectedNotify += Scaner_ConnectedNotify;
