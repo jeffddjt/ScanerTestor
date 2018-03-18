@@ -71,7 +71,7 @@ namespace DyTestor.Communication
 
         public void Init()
         {
-            this.tcpClient = new TcpClient();
+            this.tcpClient.Close();            
         }
         //private void connectCallback(IAsyncResult ar)
         //{
