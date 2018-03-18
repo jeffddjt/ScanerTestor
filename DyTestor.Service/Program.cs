@@ -125,9 +125,10 @@ namespace DyTestor.Service
         private static void Scaner_Received(byte[] buf)
         {
             string str = Encoding.ASCII.GetString(buf);
-            if (str.Contains("ER"))
+            if (str.Contains("ER")||str.Contains("OK"))
             {
                 Console.WriteLine(str);
+                stopScan();
                 startScan();
                 return;
             }
