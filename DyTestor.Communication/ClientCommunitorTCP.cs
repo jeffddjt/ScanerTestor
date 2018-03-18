@@ -13,8 +13,6 @@ namespace DyTestor.Communication
         public event ConnectedDelegate ConnectedNotify;
 
         public event EventHandler<DyEventArgs> Error;
-        public event EventHandler<DyEventArgs> OnDisconnect;
-        public event EventHandler<DyEventArgs> ConnectError;
 
         public bool Connected = false;
 
@@ -37,7 +35,7 @@ namespace DyTestor.Communication
             catch(Exception ex)
             {
                 this.Connected = false;
-                this.ConnectError?.Invoke(this, new DyEventArgs() { Message = $"Connect to {serveriP}:{serverPort} failed!", Data = Encoding.ASCII.GetBytes(ex.Message) });
+                this.Error?.Invoke(this, new DyEventArgs() { Message = $"Connect to {serveriP}:{serverPort} failed!", Data = Encoding.ASCII.GetBytes(ex.Message) });
             }
         }
 

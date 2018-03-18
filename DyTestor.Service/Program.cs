@@ -61,6 +61,10 @@ namespace DyTestor.Service
             //  });
             //thread.IsBackground = true;
             //thread.Start();
+
+            scaner = new ClientCommunitorTCP();
+            scaner.ConnectedNotify += new ConnectedDelegate(Scaner_ConnectedNotify);
+            scaner.Error += new EventHandler<DyEventArgs>(Scaner_ConnectError);
             initScaner();
             Console.WriteLine("Service has already started!");
 
@@ -71,8 +75,6 @@ namespace DyTestor.Service
         private static void initScaner()
         {
             scaner.Init();
-            connectScaner();
-            connectScaner();
         }
 
         private static void Scaner_ConnectError(object sender, DyEventArgs e)
