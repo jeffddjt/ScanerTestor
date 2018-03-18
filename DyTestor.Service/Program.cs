@@ -127,6 +127,7 @@ namespace DyTestor.Service
             string str = Encoding.ASCII.GetString(buf);
             if (str.Contains("ER"))
             {
+                Console.WriteLine(str);
                 startScan();
                 return;
             }
