@@ -122,8 +122,6 @@ namespace DyTestor.Service
             if (str.Contains("ER")||str.Contains("OK"))
             {
                 Console.WriteLine(str);
-                stopScan();
-                startScan();
                 return;
             }
             QRCodeDataObject code = new QRCodeDataObject();
