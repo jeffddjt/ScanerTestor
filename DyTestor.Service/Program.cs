@@ -125,8 +125,11 @@ namespace DyTestor.Service
         private static void Scaner_Received(byte[] buf)
         {
             string str = Encoding.ASCII.GetString(buf);
-            if (str.Contains("[") || str.Contains("]"))
+            if (str.Contains("ER"))
+            {
+                startScan();
                 return;
+            }
             QRCodeDataObject code = new QRCodeDataObject();
             code.Code = str;
             code.AssemblyLine = AppConfig.ASSEMBLY_LINE;
