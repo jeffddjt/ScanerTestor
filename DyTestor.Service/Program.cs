@@ -66,6 +66,7 @@ namespace DyTestor.Service
             scaner.ConnectedNotify += new ConnectedDelegate(Scaner_ConnectedNotify);
             scaner.Error += new EventHandler<DyEventArgs>(Scaner_ConnectError);
             initScaner();
+            connectScaner();
             Console.WriteLine("Service has already started!");
 
 
@@ -81,6 +82,7 @@ namespace DyTestor.Service
         {
             Console.WriteLine(Encoding.ASCII.GetString(e.Data));
             initScaner();
+            connectScaner();
         }
 
 
