@@ -70,25 +70,17 @@ namespace DyTestor.Service
 
         private static void initScaner()
         {
-            scaner = new ClientCommunitorTCP();
-            scaner.Received += Scaner_Received;
-            scaner.ConnectedNotify += Scaner_ConnectedNotify;
-            scaner.OnDisconnect += Scaner_OnDisconnect;
-            scaner.ConnectError += Scaner_ConnectError;
-            scaner.Error += Scaner_ConnectError;
+            scaner.Init();
+            connectScaner();
             connectScaner();
         }
 
         private static void Scaner_ConnectError(object sender, DyEventArgs e)
         {
             Console.WriteLine(Encoding.ASCII.GetString(e.Data));
+            initScaner();
         }
 
-
-        private static void Scaner_OnDisconnect(object sender, DyEventArgs e)
-        {
-            Console.WriteLine(e.Message);
-        }
 
         private static void connectScaner()
         {
