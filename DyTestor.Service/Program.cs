@@ -21,7 +21,7 @@ namespace DyTestor.Service
         static void Main(string[] args)
         {
             int port = AppConfig.LISTEN_PORT;
-            qrCodeService = ServiceLocator.GetService<IQRCodeService>();
+            //qrCodeService = ServiceLocator.GetService<IQRCodeService>();
             server = new ServerCommunicatorTCP(port);
             server.Error += Server_Error;
             server.Received += Server_Received;
@@ -65,7 +65,8 @@ namespace DyTestor.Service
             scaner = new ClientCommunitorTCP();
             scaner.ConnectedNotify += new ConnectedDelegate(Scaner_ConnectedNotify);
             scaner.Error += new EventHandler<DyEventArgs>(Scaner_ConnectError);
-            initScaner();
+            scaner.Received += new ReceiveDelegate(Scaner_Received);
+            //initScaner();
             connectScaner();
             Console.WriteLine("Service has already started!");
 
@@ -93,7 +94,7 @@ namespace DyTestor.Service
 
         private static void HttpCommunicator_Error(object sender, DyEventArgs e)
         {
-            string receive= Encoding.ASCII.GetString(e.Data);
+            string receive = Encoding.ASCII.GetString(e.Data);
             string content = receive.Split("&")[0];
             string line = receive.Split("&")[1];
             Console.WriteLine($"{e.Message}\n{content},{line}");

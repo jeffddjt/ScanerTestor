@@ -28,9 +28,6 @@ namespace DyTestor.Communication
                 this.tcpClient.Connect(serveriP, serverPort);
                 this.Connected = true;
                 this.ConnectedNotify?.Invoke();
-                Thread thread = new Thread(receiveThread);
-                thread.IsBackground = true;
-                thread.Start();
             }
             catch(Exception ex)
             {
@@ -67,6 +64,9 @@ namespace DyTestor.Communication
         {
             NetworkStream ns = this.tcpClient.GetStream();
             ns.Write(buf, 0, buf.Length);
+            Thread thread = new Thread(receiveThread);
+            thread.IsBackground = true;
+            thread.Start();
         }
 
         public void Init()
