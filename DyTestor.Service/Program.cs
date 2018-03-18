@@ -83,7 +83,7 @@ namespace DyTestor.Service
 
         private static void Scaner_ConnectError(object sender, DyEventArgs e)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(Encoding.ASCII.GetString(e.Data));
         }
 
 
