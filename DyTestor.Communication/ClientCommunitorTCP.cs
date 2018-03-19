@@ -30,11 +30,10 @@ namespace DyTestor.Communication
                     try
                     {
                         this.tcpClient.Client.Close();
+                        Thread.Sleep(5000);
                     }
                     catch { }
                     Ping ping = new Ping();
-                    PingOptions options = new PingOptions();
-                    options.DontFragment = true;
                     string data = "ping test data";
                     byte[] buf = Encoding.ASCII.GetBytes(data);
                     PingReply replay = ping.Send(AppConfig.SCANER_IP);
@@ -46,7 +45,8 @@ namespace DyTestor.Communication
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient()
                     {
-                        ReceiveTimeout = 20000
+                        ReceiveTimeout = 20000                        
+                        
                     };
                     this.connect();
                 }
