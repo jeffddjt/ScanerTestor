@@ -49,6 +49,8 @@ namespace DyTestor.Communication
         private void connectCallback(IAsyncResult ar)
         {
             TcpClient client = (TcpClient)ar.AsyncState;
+            if (client == null)
+                return;
             try
             {
                 client.EndConnect(ar);
@@ -68,6 +70,8 @@ namespace DyTestor.Communication
         private void receiveCallback(IAsyncResult ar)
         {
             TcpState state = (TcpState)ar.AsyncState;
+            if (state.Client == null)
+                return;
             int readbytes = 0;
             try
             {
@@ -92,6 +96,11 @@ namespace DyTestor.Communication
 
         public void Send(byte[] data)
         {
+            if (this.tcpClient == null)
+            {
+                this.connected = false;
+                return;
+            }
             TcpState state = new TcpState(this.tcpClient);
             state.Stream.BeginWrite(data, 0, data.Length, new AsyncCallback(sendCallback), state);
         }
@@ -99,6 +108,11 @@ namespace DyTestor.Communication
         private void sendCallback(IAsyncResult ar)
         {
             TcpState state = (TcpState)ar.AsyncState;
+            if (state.Client == null)
+            {
+                this.connected = false;
+                return;
+            }
             try
             {
                 state.Stream.EndWrite(ar);

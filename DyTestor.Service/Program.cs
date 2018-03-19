@@ -82,10 +82,8 @@ namespace DyTestor.Service
         private static void Scaner_Received(byte[] buf)
         {
             string str = Encoding.ASCII.GetString(buf);
-            Console.WriteLine(str);
             if (str.Contains("ER")||str.Contains("OK"))
             {
-                Console.WriteLine(str);
                 return;
             }
             QRCodeDataObject code = new QRCodeDataObject();
