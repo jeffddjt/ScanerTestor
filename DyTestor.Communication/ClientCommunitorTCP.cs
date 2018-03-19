@@ -128,23 +128,24 @@ namespace DyTestor.Communication
         {
             if (!this.open)
                 return;
-            lock(sync)
+            lock (sync)
             {
                 if (!this.open)
                     return;
                 this.open = false;
-            TcpState state = (TcpState)ar.AsyncState;
-            try
-            {
-                state.Stream.EndWrite(ar);
+                TcpState state = (TcpState)ar.AsyncState;
+                try
+                {
+                    state.Stream.EndWrite(ar);
                     this.open = true;
-            }
-            catch (Exception ex)
-            {
-                this.connected = false;
-                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message+ "sendCallback" });
-                this.tcpClient.Client.Close();
+                }
+                catch (Exception ex)
+                {
+                    this.connected = false;
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "sendCallback" });
+                    this.tcpClient.Client.Close();
                     this.open = true;
+                }
             }
         }
     }
