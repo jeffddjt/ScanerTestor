@@ -31,6 +31,8 @@ namespace DyTestor.Communication
                             continue;
                         this.tcpClient = null;
                         this.tcpClient = new TcpClient();
+                        this.tcpClient.SendTimeout = 10000;
+                        this.tcpClient.ReceiveTimeout = 10000;
                         this.connect();
                     }
                 }
