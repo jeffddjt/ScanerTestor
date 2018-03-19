@@ -30,14 +30,9 @@ namespace DyTestor.Communication
                     try
                     {
                         this.tcpClient.Client.Close();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(3000);
                     }
                     catch { }
-                    this.tcpClient = null;
-                    this.tcpClient = new TcpClient()
-                    {
-                        ReceiveTimeout = 20000
-                    };
                     Ping ping = new Ping();
                     PingOptions options = new PingOptions();
                     options.DontFragment = true;
@@ -49,6 +44,11 @@ namespace DyTestor.Communication
                         this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
                         replay = ping.Send(AppConfig.SCANER_IP);
                     }
+                    this.tcpClient = null;
+                    this.tcpClient = new TcpClient()
+                    {
+                        ReceiveTimeout = 20000
+                    };
                     this.connect();
                 }
             }).Start();
