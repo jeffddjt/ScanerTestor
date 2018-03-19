@@ -33,7 +33,10 @@ namespace DyTestor.Communication
                     }
                     catch { }
                     this.tcpClient = null;
-                    this.tcpClient = new TcpClient();
+                    this.tcpClient = new TcpClient()
+                    {
+                        ReceiveTimeout = 20000
+                    };
                     Ping ping = new Ping();
                     PingOptions options = new PingOptions();
                     options.DontFragment = true;
