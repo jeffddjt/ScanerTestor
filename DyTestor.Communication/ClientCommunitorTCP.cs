@@ -99,6 +99,7 @@ namespace DyTestor.Communication
                         return;
                 }
             } while (readbytes > 0);
+            this.connected = false;
         }
 
         public void Send(byte[] data)
