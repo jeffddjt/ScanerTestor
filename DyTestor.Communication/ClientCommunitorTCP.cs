@@ -74,6 +74,7 @@ namespace DyTestor.Communication
                 byte[] data = new byte[readbytes];
                 Array.Copy(state.Buffer, 0, data, 0, readbytes);
                 this.Received?.Invoke(data);
+                state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
             }
             catch
             {
