@@ -26,8 +26,7 @@ namespace DyTestor.Communication
                 {
                     Thread.Sleep(1);
                     if (connected)
-                        continue;
-                    Environment.Exit(0);
+                        continue;                    
                     try
                     {
                         this.tcpClient.Client.Close();
@@ -108,19 +107,27 @@ namespace DyTestor.Communication
 
         public void Send(byte[] data)
         {
-            new Thread(() =>
-            {
                 try
                 {
-                    IAsyncResult result = this.tcpClient.GetStream().BeginWrite(data, 0, data.Length, null, null);
-                    this.tcpClient.GetStream().EndWrite(result);
+                  this.tcpClient.Client.BeginSend(data,0,data.Length,SocketFlags.None,new AsyncCallback(sendCallback),null);                      
                 }
                 catch (Exception ex)
                 {
                     this.connected = false;
-                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "sendCallback" });
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "send" });
                 }
-            }).Start();
+        }
+        
+        private void sendCallback(IAsyncResult ar)
+        {
+            try
+            {
+                this.tcpClient.Client.EndSend(ar);
+            }catch(Exception ex)
+            {
+                this.Error?.Invoke(this,new DyEventArgs(){Message=ex.Message});
+            }
+
         }
     }
 }
