@@ -27,10 +27,10 @@ namespace DyTestor.Communication
                     Thread.Sleep(1);
                     if (connected)
                         continue;
+                    Environment.Exit(0);
                     try
                     {
                         this.tcpClient.Client.Close();
-                        Thread.Sleep(3000);
                     }
                     catch { }
                     Ping ping = new Ping();
