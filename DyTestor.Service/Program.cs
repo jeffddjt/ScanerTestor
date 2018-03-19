@@ -91,7 +91,7 @@ namespace DyTestor.Service
             QRCodeDataObject code = new QRCodeDataObject();
             code.Code = str;
             code.AssemblyLine = AppConfig.ASSEMBLY_LINE;
-            code.CreateTime = DateTime.Now;            
+            code.CreateTime = DateTime.Now;
             byte[] data = Encoding.UTF8.GetBytes(code.ToURLParameter());
             httpCommunicator.Send(data);
 
@@ -148,6 +148,7 @@ namespace DyTestor.Service
         private static void startScan()
         {
             byte[] cmd = Encoding.ASCII.GetBytes("LON\r");
+            Thread.Sleep(100);
             scaner.Send(cmd);
         }
 

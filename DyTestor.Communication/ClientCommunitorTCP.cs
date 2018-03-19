@@ -26,6 +26,11 @@ namespace DyTestor.Communication
                     Thread.Sleep(1);
                     if (connected)
                         continue;
+                    try
+                    {
+                        this.tcpClient.Client.Close();
+                    }
+                    catch { }
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient();
                     this.connect();
@@ -48,6 +53,7 @@ namespace DyTestor.Communication
                 this.connected = true;
                 this.OnConnect?.Invoke();
 
+
             }catch(Exception ex)
             {
                 this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
@@ -57,8 +63,10 @@ namespace DyTestor.Communication
 
         private void connectCallback(IAsyncResult ar)
         {
-            byte[] buf = new byte[this.tcpClient.ReceiveBufferSize];
+            if (!this.connected)
+                return;
             int readbytes = 0;
+            byte[] buf = new byte[65536];
             do
             {
                 try
@@ -70,29 +78,32 @@ namespace DyTestor.Communication
                         Array.Copy(buf, 0, data, 0, readbytes);
                         this.Received?.Invoke(data);
                     }
+                    else
+                        break;
                 }
-                catch (Exception ex)
+                catch
                 {
                     this.connected = false;
-                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "receiveCallback" });
-                    this.tcpClient.Client.Close();
+                        return;
                 }
             } while (readbytes > 0);
-            this.connected = false;
         }
 
         public void Send(byte[] data)
         {
-            try
+            new Thread(() =>
             {
-                this.tcpClient.Client.Send(data);
-            }
-            catch (Exception ex)
-            {
-                this.connected = false;
-                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "sendCallback" });
-                this.tcpClient.Client.Close();
-            }
+                try
+                {
+                    IAsyncResult result = this.tcpClient.GetStream().BeginWrite(data, 0, data.Length, null, null);
+                    this.tcpClient.GetStream().EndWrite(result);
+                }
+                catch (Exception ex)
+                {
+                    this.connected = false;
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "sendCallback" });
+                }
+            }).Start();
         }
     }
 }
