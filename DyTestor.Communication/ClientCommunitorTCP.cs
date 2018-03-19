@@ -14,6 +14,8 @@ namespace DyTestor.Communication
         public event EventHandler<DyEventArgs> Error;
 
         private bool connected = false;
+
+        private bool open = true;
         private object sync = new object();
 
         private TcpClient tcpClient;
@@ -48,49 +50,66 @@ namespace DyTestor.Communication
 
         private void connectCallback(IAsyncResult ar)
         {
-            TcpClient client = (TcpClient)ar.AsyncState;
-            if (client == null)
+            if (!this.open)
                 return;
-            try
+            lock (sync)
             {
-                client.EndConnect(ar);
-                this.connected = true;
-                this.OnConnect?.Invoke();
-                TcpState state = new TcpState(client);
-                state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
-            }
-            catch (Exception ex)
-            {
-                this.connected = false;
-                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message+ "connectCallback" });
-                this.tcpClient.Client.Close();
+                if (!this.open)
+                    return;
+                this.open = false;
+                TcpClient client = (TcpClient)ar.AsyncState;
+                try
+                {
+                    client.EndConnect(ar);
+                    this.connected = true;
+                    this.OnConnect?.Invoke();
+                    TcpState state = new TcpState(client);
+                    state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
+                    this.open = true;
+                }
+                catch (Exception ex)
+                {
+                    this.connected = false;
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "connectCallback" });
+                    this.tcpClient.Client.Close();
+                    this.open = true;
+                }
             }
         }
 
         private void receiveCallback(IAsyncResult ar)
         {
-            TcpState state = (TcpState)ar.AsyncState;
-            if (state.Client == null)
+            if (!this.open)
                 return;
-            int readbytes = 0;
-            try
+            lock (sync)
             {
-                readbytes = state.Stream.EndRead(ar);
-                if (readbytes == 0)
+                if (!this.open)
+                    return;
+                this.open = false;
+                TcpState state = (TcpState)ar.AsyncState;
+
+                int readbytes = 0;
+                try
+                {
+                    readbytes = state.Stream.EndRead(ar);
+                    if (readbytes == 0)
+                    {
+                        this.connected = false;
+                        return;
+                    }
+                    byte[] data = new byte[readbytes];
+                    Array.Copy(state.Buffer, 0, data, 0, readbytes);
+                    this.Received?.Invoke(data);
+                    state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
+                    this.open = true;
+                }
+                catch (Exception ex)
                 {
                     this.connected = false;
-                    return;
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "receiveCallback" });
+                    this.tcpClient.Client.Close();
+                    this.open = true;
                 }
-                byte[] data = new byte[readbytes];
-                Array.Copy(state.Buffer, 0, data, 0, readbytes);
-                this.Received?.Invoke(data);
-                state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
-            }
-            catch (Exception ex)
-            {
-                this.connected = false;
-                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message+ "receiveCallback" });
-                this.tcpClient.Client.Close();
             }
         }
 
@@ -107,21 +126,25 @@ namespace DyTestor.Communication
 
         private void sendCallback(IAsyncResult ar)
         {
-            TcpState state = (TcpState)ar.AsyncState;
-            if (state.Client == null)
-            {
-                this.connected = false;
+            if (!this.open)
                 return;
-            }
+            lock(sync)
+            {
+                if (!this.open)
+                    return;
+                this.open = false;
+            TcpState state = (TcpState)ar.AsyncState;
             try
             {
                 state.Stream.EndWrite(ar);
+                    this.open = true;
             }
             catch (Exception ex)
             {
                 this.connected = false;
                 this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message+ "sendCallback" });
                 this.tcpClient.Client.Close();
+                    this.open = true;
             }
         }
     }
