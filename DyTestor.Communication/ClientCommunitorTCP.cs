@@ -27,6 +27,12 @@ namespace DyTestor.Communication
                     Thread.Sleep(1);
                     if (connected)
                         continue;
+                    try
+                    {
+                        this.tcpClient.Client.Close();
+                        Thread.Sleep(3000);
+                    }
+                    catch { }
                     Ping ping = new Ping();
                     PingOptions options = new PingOptions();
                     options.DontFragment = true;
