@@ -9,7 +9,7 @@ namespace DyTestor.Communication
 {
     public class ClientCommunitorTCP
     {
-        public  event ReceiveDelegate Received;
+        public event ReceiveDelegate Received;
         public event ConnectedDelegate OnConnect;
         public event EventHandler<DyEventArgs> Error;
 
@@ -17,24 +17,21 @@ namespace DyTestor.Communication
         private object sync = new object();
 
         private TcpClient tcpClient;
-        
+
         public void Start()
         {
             new Thread(() =>
             {
                 while (true)
                 {
-                    lock (sync)
-                    {
-                        Thread.Sleep(3000);
-                        if (connected)
-                            continue;
-                        this.tcpClient = null;
-                        this.tcpClient = new TcpClient();
-                        this.tcpClient.SendTimeout = 10000;
-                        this.tcpClient.ReceiveTimeout = 10000;
-                        this.connect();
-                    }
+                    Thread.Sleep(3000);
+                    if (connected)
+                        continue;
+                    this.tcpClient = null;
+                    this.tcpClient = new TcpClient();
+                    this.tcpClient.SendTimeout = 10000;
+                    this.tcpClient.ReceiveTimeout = 10000;
+                    this.connect();
                 }
             }).Start();
         }
@@ -59,10 +56,12 @@ namespace DyTestor.Communication
                 this.OnConnect?.Invoke();
                 TcpState state = new TcpState(client);
                 state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 this.connected = false;
                 this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
+                this.tcpClient.Client.Close();
             }
         }
 
@@ -73,7 +72,7 @@ namespace DyTestor.Communication
             try
             {
                 readbytes = state.Stream.EndRead(ar);
-                if(readbytes==0)
+                if (readbytes == 0)
                 {
                     this.connected = false;
                     return;
@@ -83,11 +82,11 @@ namespace DyTestor.Communication
                 this.Received?.Invoke(data);
                 state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.connected = false;
                 this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
-
+                this.tcpClient.Client.Close();
             }
         }
 
@@ -104,11 +103,11 @@ namespace DyTestor.Communication
             {
                 state.Stream.EndWrite(ar);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.connected = false;
                 this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
-
+                this.tcpClient.Client.Close();
             }
         }
     }
