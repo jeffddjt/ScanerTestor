@@ -60,7 +60,7 @@ namespace DyTestor.Communication
             catch (Exception ex)
             {
                 this.connected = false;
-                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
+                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message+ "connectCallback" });
                 this.tcpClient.Client.Close();
             }
         }
@@ -85,7 +85,7 @@ namespace DyTestor.Communication
             catch (Exception ex)
             {
                 this.connected = false;
-                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
+                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message+ "receiveCallback" });
                 this.tcpClient.Client.Close();
             }
         }
@@ -106,7 +106,7 @@ namespace DyTestor.Communication
             catch (Exception ex)
             {
                 this.connected = false;
-                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
+                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message+ "sendCallback" });
                 this.tcpClient.Client.Close();
             }
         }
