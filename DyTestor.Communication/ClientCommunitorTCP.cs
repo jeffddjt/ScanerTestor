@@ -30,6 +30,7 @@ namespace DyTestor.Communication
                     try
                     {
                         this.tcpClient.Client.Close();
+                        Thread.Sleep(1000);
                     }
                     catch { }
                     this.tcpClient = null;
