@@ -36,6 +36,7 @@ namespace DyTestor.Service
             scaner = new ClientCommunitorTCP();
             scaner.Received += new ReceiveDelegate(Scaner_Received);
             scaner.OnConnect += new ConnectedDelegate(Scaner_ConnectedNotify);
+            scaner.Error += new EventHandler<DyEventArgs>(scanerError);
             connectScaner();
             Console.WriteLine("Service has already started!");
 
@@ -43,6 +44,10 @@ namespace DyTestor.Service
             Console.ReadLine();            
         }
 
+        private static void scanerError(object sender, DyEventArgs e)
+        {
+            Console.WriteLine(e.Message);
+        }
 
         private static void connectScaner()
         {
