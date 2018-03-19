@@ -27,11 +27,7 @@ namespace DyTestor.Communication
                     if (connected)
                         continue;
                     this.tcpClient = null;
-                    this.tcpClient = new TcpClient
-                    {
-                        SendTimeout = 3000,
-                        ReceiveTimeout = 3000
-                    };
+                    this.tcpClient = new TcpClient();
                     this.connect();
                 }
             }).Start();
@@ -61,8 +57,6 @@ namespace DyTestor.Communication
 
         private void connectCallback(IAsyncResult ar)
         {
-            if (!this.connected)
-                return;
             byte[] buf = new byte[this.tcpClient.ReceiveBufferSize];
             int readbytes = 0;
             do
