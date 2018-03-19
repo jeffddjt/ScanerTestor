@@ -1,6 +1,7 @@
 ﻿using DyTestor.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -33,6 +34,17 @@ namespace DyTestor.Communication
                     catch { }
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient();
+                    Ping ping = new Ping();
+                    PingOptions options = new PingOptions();
+                    options.DontFragment = true;
+                    string data = "ping test data";
+                    byte[] buf = Encoding.ASCII.GetBytes(data);
+                    PingReply replay = ping.Send(AppConfig.SCANER_IP);
+                    while (replay.Status != IPStatus.Success)
+                    {
+                        this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
+                        replay = ping.Send(AppConfig.SCANER_IP);
+                    }
                     this.connect();
                 }
             }).Start();
