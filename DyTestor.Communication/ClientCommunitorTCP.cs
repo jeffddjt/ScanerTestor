@@ -14,6 +14,7 @@ namespace DyTestor.Communication
         public event EventHandler<DyEventArgs> Error;
 
         private bool connected = false;
+        private object sync = new object();
 
         private TcpClient tcpClient;
         
@@ -23,12 +24,15 @@ namespace DyTestor.Communication
             {
                 while (true)
                 {
-                    Thread.Sleep(3000);
-                    if (connected)
-                        continue;
-                    this.tcpClient = null;
-                    this.tcpClient = new TcpClient();
-                    this.connect();
+                    lock (sync)
+                    {
+                        Thread.Sleep(3000);
+                        if (connected)
+                            continue;
+                        this.tcpClient = null;
+                        this.tcpClient = new TcpClient();
+                        this.connect();
+                    }
                 }
             }).Start();
         }
