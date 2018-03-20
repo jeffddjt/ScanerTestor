@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
+    <RuntimeIdentifiers>win7-x64;win10-x64;osx.10.11-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
