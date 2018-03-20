@@ -35,7 +35,14 @@ namespace DyTestor.Communication
                         this.tcpClient.Close();
                     }
                     catch { }
-
+                    Ping ping = new Ping();
+                    string data = "ping test data";
+                    byte[] buf = Encoding.ASCII.GetBytes(data);
+                    PingReply reply = ping.Send(AppConfig.SCANER_IP);
+                    while(reply.Status!=IPStatus.Success)
+                    {
+                        reply = ping.Send(AppConfig.SCANER_IP);
+                    }
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient();
                     this.connect();
