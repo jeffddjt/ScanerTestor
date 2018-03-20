@@ -35,22 +35,39 @@ namespace DyTestor.Communication
                         this.tcpClient.Close();
                     }
                     catch { }
-                    Ping ping = new Ping();
-                    string data = "ping test data";
-                    byte[] buf = Encoding.ASCII.GetBytes(data);
-                    PingReply reply = ping.Send(AppConfig.SCANER_IP);
-                    while (reply.Status != IPStatus.Success)
-                    {
-                        this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
-                        reply = ping.Send(AppConfig.SCANER_IP);
-                    }
+
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient();
                     this.connect();
                 }
             }).Start();
-        }
 
+            Thread detectThread = new Thread(detectScaner);
+            detectThread.IsBackground = true;
+            detectThread.Start();
+        }
+        private void detectScaner()
+        {
+            while (true)
+            {
+                Ping ping = new Ping();
+                string data = "ping test data";
+                byte[] buf = Encoding.ASCII.GetBytes(data);
+                PingReply reply = ping.Send(AppConfig.SCANER_IP);
+                if (reply.Status != IPStatus.Success)
+                {
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
+                    try
+                    {
+                        this.tcpClient.Client.Close();
+                        this.tcpClient.GetStream().Close();
+                        this.tcpClient.Close();
+                    }
+                    catch { }
+                    this.connected = false;
+                }
+            }
+        }
         public void Reconnect()
         {
             this.connected = false;
