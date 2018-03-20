@@ -26,7 +26,7 @@ namespace DyTestor.Communication
                     }
                     catch { }
                     this.tcpClient = null;
-                    this.tcpClient = new TcpClient() { ReceiveTimeout=20000}
+                    this.tcpClient = new TcpClient() { ReceiveTimeout = 20000 };
                     this.connect();
                 }
             });
