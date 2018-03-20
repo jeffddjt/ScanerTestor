@@ -29,18 +29,20 @@ namespace DyTestor.Communication
                         continue;                    
                     try
                     {
+                        NetworkStream ns = this.tcpClient.GetStream();
+                        ns.Close();
                         this.tcpClient.Client.Close();
-                        Thread.Sleep(5000);
+                        this.tcpClient.Close();
                     }
                     catch { }
                     Ping ping = new Ping();
                     string data = "ping test data";
                     byte[] buf = Encoding.ASCII.GetBytes(data);
-                    PingReply replay = ping.Send(AppConfig.SCANER_IP);
-                    while (replay.Status != IPStatus.Success)
+                    PingReply reply = ping.Send(AppConfig.SCANER_IP);
+                    while (reply.Status != IPStatus.Success)
                     {
                         this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
-                        replay = ping.Send(AppConfig.SCANER_IP);
+                        reply = ping.Send(AppConfig.SCANER_IP);
                     }
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient()
