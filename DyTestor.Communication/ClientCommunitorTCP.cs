@@ -13,167 +13,92 @@ namespace DyTestor.Communication
         public event ReceiveDelegate Received;
         public event ConnectedDelegate OnConnect;
         public event EventHandler<DyEventArgs> Error;
-
-        private bool connected = false;
-
         private TcpClient tcpClient;
-
         public void Start()
         {
-            new Thread(() =>
+            Thread thread = new Thread(() =>
             {
-
                 while (true)
                 {
-                    Ping ping = new Ping();
-                    string data = "ping test data";
-                    byte[] buf = Encoding.ASCII.GetBytes(data);
-                    PingReply reply = ping.Send(AppConfig.SCANER_IP);
-                    if(reply.Status != IPStatus.Success)
-                    {
-                        this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
-                        this.connected = false;
-                        continue;
-                        
-                    }
-                    if (connected)
-                        continue;                    
                     try
                     {
-                        NetworkStream ns = this.tcpClient.GetStream();
-                        ns.Close();
-                        this.tcpClient.Client.Close(0);
-                        this.tcpClient.Close();
+                        this.tcpClient.Client.Close();
                     }
                     catch { }
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient();
-                    Thread.Sleep(3000);
                     this.connect();
-                    
                 }
-            }).Start();
+            });
+            thread.IsBackground = true;
+            thread.Start();
 
-            //Thread detectThread = new Thread(detectScaner);
-            //detectThread.IsBackground = true;
-            //detectThread.Start();
-        }
-
-        public void Reconnect()
-        {
-            this.connected = false;
         }
 
         private void connect()
         {
-            new Thread(()=> {
-                try
-                {
-                    //this.tcpClient.BeginConnect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT, new AsyncCallback(connectCallback), this.tcpClient);
-                    //this.OnConnect?.Invoke();
-                    this.tcpClient.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
-                    this.Send(Encoding.ASCII.GetBytes("LON\r"));
-                    this.startReceive();
-
-
-                }
-                catch (Exception ex)
-                {
-                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
-                    this.connected = false;
-                }
-
-            }).Start();
-        }
-        private void startReceive()
-        {
-            new Thread(()=>
+            Ping ping = new Ping();
+            string data = "ping test data";
+            byte[] buf = Encoding.ASCII.GetBytes(data);
+            while (ping.Send(AppConfig.SCANER_IP).Status != IPStatus.Success)
             {
-                int readbytes = 0;
-                byte[] buf = new byte[65536];
+                new Thread(() =>
+                {
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
+                }).Start();
+            }
+            try
+            {
+                this.tcpClient.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
+                new Thread(() => { this.OnConnect?.Invoke(); }).Start();
+                int readbyte = 0;
                 do
                 {
-                    try
-                    {
-                        readbytes = this.tcpClient.Client.Receive(buf);
-                        if (readbytes > 0)
-                        {
-                            byte[] data = new byte[readbytes];
-                            Array.Copy(buf, 0, data, 0, readbytes);
-                            this.Received?.Invoke(data);
-                        }
-                    }
-                    catch
-                    {
-                        readbytes = 0;
-                        return;
-                    }
-                } while (readbytes > 0);
-                this.connected = false;
-            }).Start();
-        }
-        private void connectCallback(IAsyncResult ar)
-        {
-            TcpClient client = (TcpClient)ar.AsyncState;
-            client.EndConnect(ar);
-            this.connected = true;
-
-            this.Send(Encoding.ASCII.GetBytes("LON\r"));
-
-            int readbytes = 0;
-            byte[] buf = new byte[65536];
-            do
-            {
-                try
-                {
-                    readbytes = this.tcpClient.Client.Receive(buf);
-                    if (readbytes > 0)
-                    {
-                        byte[] data = new byte[readbytes];
-                        Array.Copy(buf, 0, data, 0, readbytes);
-                        this.Received?.Invoke(data);
-                    }
-                    else
+                    byte[] temp = new byte[65535];
+                    NetworkStream ns = this.tcpClient.GetStream();
+                    readbyte = ns.Read(temp, 0, temp.Length);
+                    if (readbyte == 0)
                         break;
-                }
-                catch
-                {
-                    this.connected = false;
-                        return;
-                }
-            } while (readbytes > 0);
-            this.connected = false;
+
+                    byte[] result = new byte[readbyte];
+                    Array.Copy(temp, 0, result, 0, readbyte);
+                    new Thread(() =>
+                    {
+                        this.Received?.Invoke(result);
+                    }).Start();
+
+                } while (readbyte > 0);
+            }catch(Exception ex)
+            {
+                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
+            }
         }
+
 
         public void Send(byte[] data)
         {
                 try
                 {
-                     NetworkStream ns = this.tcpClient.GetStream();
-                     ns.Write(data, 0, data.Length);
-                    //ns.BeginWrite(data, 0, data.Length, new AsyncCallback(sendCallback), this.tcpClient);
+                TcpState state = new TcpState(this.tcpClient);
+                state.Stream.BeginWrite(data, 0, data.Length, new AsyncCallback(sendCallback), state);
                 }
                 catch (Exception ex)
                 {
-                    
-                    this.connected = false;
                     this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "send" });
                 }
         }
         
         private void sendCallback(IAsyncResult ar)
         {
-
-            try
-            {
-                TcpClient client = (TcpClient)ar.AsyncState;
-                NetworkStream ns = client.GetStream();
-                ns.EndWrite(ar);
-            }catch(Exception ex)
-            {
-                this.Error?.Invoke(this,new DyEventArgs(){Message=ex.Message});
-            }
-
+                TcpState state = (TcpState)ar.AsyncState;
+                try
+                {
+                    state.Stream.EndWrite(ar);
+                }
+                catch (Exception ex)
+                {
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "   sendCallback" });
+                }
         }
     }
 }

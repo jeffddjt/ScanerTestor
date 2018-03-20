@@ -24,7 +24,7 @@ namespace DyTestor.Configuration
             this.ScanerIP = "192.168.100.100";
             this.ScanerPort = 9004;
             this.AssemblyLine = "1";
-            this.DBServerIP = "db";
+            this.DBServerIP = "192.168.40.251";
             this.DBName = "ScanerTestor";
             this.DBPassword = "aaaa1111!";
         }

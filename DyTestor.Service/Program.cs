@@ -129,7 +129,6 @@ namespace DyTestor.Service
         {
             DyConfig config = (DyConfig)msg.Data;
             AppConfig.Save(config);
-            scaner.Reconnect();
         }
 
         private static void sendGetConfig(CommunicationData msg)
