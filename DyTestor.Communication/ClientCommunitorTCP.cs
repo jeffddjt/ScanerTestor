@@ -24,7 +24,7 @@ namespace DyTestor.Communication
             {
                 while (true)
                 {
-                    Thread.Sleep(1);
+                    Thread.Sleep(3000);
                     if (connected)
                         continue;                    
                     try
@@ -49,9 +49,9 @@ namespace DyTestor.Communication
                 }
             }).Start();
 
-            Thread detectThread = new Thread(detectScaner);
-            detectThread.IsBackground = true;
-            detectThread.Start();
+            //Thread detectThread = new Thread(detectScaner);
+            //detectThread.IsBackground = true;
+            //detectThread.Start();
         }
         private void detectScaner()
         {
