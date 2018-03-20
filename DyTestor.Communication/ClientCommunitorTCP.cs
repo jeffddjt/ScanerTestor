@@ -66,7 +66,7 @@ namespace DyTestor.Communication
                     {
                         this.Received?.Invoke(result);
                     }).Start();
-
+                    ns.Close();
                 } while (readbyte > 0);
             }catch(Exception ex)
             {
