@@ -66,8 +66,9 @@ namespace DyTestor.Communication
                     this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
                     try
                     {
+                        NetworkStream ns = this.tcpClient.GetStream();
+                        ns.Close();
                         this.tcpClient.Client.Close();
-                        this.tcpClient.GetStream().Close();
                         this.tcpClient.Close();
                     }
                     catch { }
