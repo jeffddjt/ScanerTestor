@@ -32,74 +32,31 @@ namespace DyTestor.Service
             httpCommunicator.Error += HttpCommunicator_Error; ;
             httpCommunicator.Received += HttpCommunicator_Received;
 
-            Thread thread = new Thread(() =>
-              {
-                  while (true)
-                  {
-                      Thread.Sleep(2000);
-                      if (scaner!=null&&scaner.Connected)
-                          continue;
-                      TcpClient client = new TcpClient();
-                              Console.WriteLine("ok");
-                      try
-                      {
-                          client.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
-                          if (client.Connected)
-                          {
-                              client.Close();
-                              initScaner();
 
-                          }
-                      }
-                      catch(Exception ex)
-                      {
-                          Console.WriteLine(ex.Message);
-                          continue;
-                      }
-                  }
-
-              });
-            thread.IsBackground = true;
-            thread.Start();
-
+            scaner = new ClientCommunitorTCP();
+            scaner.Received += new ReceiveDelegate(Scaner_Received);
+            scaner.OnConnect += new ConnectedDelegate(Scaner_ConnectedNotify);
+            scaner.Error += new EventHandler<DyEventArgs>(scanerError);
+            connectScaner();
             Console.WriteLine("Service has already started!");
 
 
             Console.ReadLine();            
         }
 
-        private static void initScaner()
-        {
-            if (scaner != null)
-                scaner.Dispose();
-            scaner = new ClientCommunitorTCP();
-            scaner.Received += Scaner_Received;
-            scaner.ConnectedNotify += Scaner_ConnectedNotify;
-            scaner.OnDisconnect += Scaner_OnDisconnect;
-            scaner.ConnectError += Scaner_ConnectError;
-            scaner.Error += Scaner_ConnectError;
-            connectScaner();
-        }
-
-        private static void Scaner_ConnectError(object sender, DyEventArgs e)
-        {
-            Console.WriteLine(Encoding.ASCII.GetString(e.Data));
-        }
-
-
-        private static void Scaner_OnDisconnect(object sender, DyEventArgs e)
+        private static void scanerError(object sender, DyEventArgs e)
         {
             Console.WriteLine(e.Message);
         }
 
         private static void connectScaner()
         {
-            scaner.Connect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT);
+            scaner.Start();
         }
 
         private static void HttpCommunicator_Error(object sender, DyEventArgs e)
         {
-            string receive= Encoding.ASCII.GetString(e.Data);
+            string receive = Encoding.ASCII.GetString(e.Data);
             string content = receive.Split("&")[0];
             string line = receive.Split("&")[1];
             Console.WriteLine($"{e.Message}\n{content},{line}");
@@ -125,12 +82,16 @@ namespace DyTestor.Service
         private static void Scaner_Received(byte[] buf)
         {
             string str = Encoding.ASCII.GetString(buf);
-            if (str.Contains("[") || str.Contains("]"))
+            Console.WriteLine(str);
+            if (str.Contains("ER")||str.Contains("OK"))
+            {
+                Console.WriteLine(str);
                 return;
+            }
             QRCodeDataObject code = new QRCodeDataObject();
             code.Code = str;
             code.AssemblyLine = AppConfig.ASSEMBLY_LINE;
-            code.CreateTime = DateTime.Now;            
+            code.CreateTime = DateTime.Now;
             byte[] data = Encoding.UTF8.GetBytes(code.ToURLParameter());
             httpCommunicator.Send(data);
 
@@ -168,7 +129,7 @@ namespace DyTestor.Service
         {
             DyConfig config = (DyConfig)msg.Data;
             AppConfig.Save(config);
-            initScaner();
+            scaner.Reconnect();
         }
 
         private static void sendGetConfig(CommunicationData msg)
@@ -187,6 +148,7 @@ namespace DyTestor.Service
         private static void startScan()
         {
             byte[] cmd = Encoding.ASCII.GetBytes("LON\r");
+            Thread.Sleep(100);
             scaner.Send(cmd);
         }
 

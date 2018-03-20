@@ -1,118 +1,135 @@
-﻿using System;
+﻿using DyTestor.Configuration;
+using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace DyTestor.Communication
 {
-    public class ClientCommunitorTCP : IDisposable
+    public class ClientCommunitorTCP
     {
-        public  event ReceiveDelegate Received;
-        //public  event ErrorDelegate Error;
-        public event ConnectedDelegate ConnectedNotify;
-
+        public event ReceiveDelegate Received;
+        public event ConnectedDelegate OnConnect;
         public event EventHandler<DyEventArgs> Error;
-        public event EventHandler<DyEventArgs> OnDisconnect;
-        public event EventHandler<DyEventArgs> ConnectError;
 
-        public bool Connected = false;
+        private bool connected = false;
 
         private TcpClient tcpClient;
-        public ClientCommunitorTCP()
+
+        public void Start()
         {
-            this.tcpClient = new TcpClient();
+            new Thread(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(1);
+                    if (connected)
+                        continue;                    
+                    try
+                    {
+                        NetworkStream ns = this.tcpClient.GetStream();
+                        ns.Close();
+                        this.tcpClient.Client.Close();
+                        this.tcpClient.Close();
+                    }
+                    catch { }
+                    Ping ping = new Ping();
+                    string data = "ping test data";
+                    byte[] buf = Encoding.ASCII.GetBytes(data);
+                    PingReply reply = ping.Send(AppConfig.SCANER_IP);
+                    while (reply.Status != IPStatus.Success)
+                    {
+                        this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
+                        reply = ping.Send(AppConfig.SCANER_IP);
+                    }
+                    this.tcpClient = null;
+                    this.tcpClient = new TcpClient()
+                    {
+                        ReceiveTimeout = 20000                        
+                        
+                    };
+                    this.connect();
+                }
+            }).Start();
         }
-        public void Connect(string serveriP,int serverPort)
+
+        public void Reconnect()
+        {
+            this.connected = false;
+        }
+
+        private void connect()
         {
             try
             {
-                this.tcpClient.BeginConnect(serveriP, serverPort, new AsyncCallback(connectCallback), this.tcpClient);
-            }
-            catch(Exception ex)
+                AsyncCallback asyncCallback = new AsyncCallback(connectCallback);
+                IAsyncResult result = this.tcpClient.BeginConnect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT, new AsyncCallback(connectCallback), null);
+                this.tcpClient.EndConnect(result);
+                this.connected = true;
+                this.OnConnect?.Invoke();
+
+
+            }catch(Exception ex)
             {
-                this.Connected = false;
-                this.ConnectError?.Invoke(this, new DyEventArgs() { Message = $"Connect to {serveriP}:{serverPort} failed!", Data = Encoding.ASCII.GetBytes(ex.Message) });
+                this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message });
+                this.connected = false;
             }
         }
 
         private void connectCallback(IAsyncResult ar)
         {
-            TcpClient client = (TcpClient)ar.AsyncState;
-            try
-            {
-                client.EndConnect(ar);
-                TcpState state = new TcpState(client);
-                state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
-                this.Connected = true;
-                this.ConnectedNotify?.Invoke();
-            }
-            catch(Exception ex)
-            {
-                this.Connected = false;
-                this.Error?.Invoke(this,new DyEventArgs() { Message = $"Connect to Scanner failed!", Data=Encoding.ASCII.GetBytes(ex.Message) });
-            }
-        }
-
-        private void receiveCallback(IAsyncResult ar)
-        {
-            TcpState state = (TcpState)ar.AsyncState;
-            int readbytes = 0;
-            try
-            {
-                readbytes = state.Stream.EndRead(ar);
-            }catch
-            {
-                readbytes = 0;
-            }
-            if (readbytes == 0)
-            {
-                this.Connected = false;
-                this.OnDisconnect?.Invoke(this, new DyEventArgs() { Message= "The Server is disconnect!"});
+            if (!this.connected)
                 return;
-            }
-            byte[] buf = new byte[readbytes];
-            Array.Copy(state.Buffer, 0, buf, 0, readbytes);            
-            this.Received?.Invoke(buf);
-            state.Stream.BeginRead(state.Buffer, 0, state.Buffer.Length, new AsyncCallback(receiveCallback), state);
-
+            int readbytes = 0;
+            byte[] buf = new byte[65536];
+            do
+            {
+                try
+                {
+                    readbytes = this.tcpClient.Client.Receive(buf);
+                    if (readbytes > 0)
+                    {
+                        byte[] data = new byte[readbytes];
+                        Array.Copy(buf, 0, data, 0, readbytes);
+                        this.Received?.Invoke(data);
+                    }
+                    else
+                        break;
+                }
+                catch
+                {
+                    this.connected = false;
+                        return;
+                }
+            } while (readbytes > 0);
+            this.connected = false;
         }
 
         public void Send(byte[] data)
         {
-            TcpState state = new TcpState(this.tcpClient);
-            state.Stream.BeginWrite(data, 0, data.Length, new AsyncCallback(sendCallback), state);
-
+                try
+                {
+                  this.tcpClient.Client.BeginSend(data,0,data.Length,SocketFlags.None,new AsyncCallback(sendCallback),null);                      
+                }
+                catch (Exception ex)
+                {
+                    this.connected = false;
+                    this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "send" });
+                }
         }
-
+        
         private void sendCallback(IAsyncResult ar)
         {
-            TcpState state = (TcpState)ar.AsyncState;
-            state.Stream.EndWrite(ar);
-        }
+            try
+            {
+                this.tcpClient.Client.EndSend(ar);
+            }catch(Exception ex)
+            {
+                this.Error?.Invoke(this,new DyEventArgs(){Message=ex.Message});
+            }
 
-        public void Dispose()
-        {
-            foreach(var k in this.Error.GetInvocationList())
-            {
-                this.Error -= new EventHandler<DyEventArgs>(k as EventHandler<DyEventArgs>);
-            }
-            foreach(var k in this.ConnectedNotify.GetInvocationList())
-            {
-                this.ConnectedNotify -= new ConnectedDelegate(k as ConnectedDelegate);
-            }
-            foreach(var k in this.ConnectError.GetInvocationList())
-            {
-                this.ConnectError -= new EventHandler<DyEventArgs>(k as EventHandler<DyEventArgs>);
-            }
-            foreach(var k in this.OnDisconnect.GetInvocationList())
-            {
-                this.OnDisconnect -= new EventHandler<DyEventArgs>(k as EventHandler<DyEventArgs>);
-            }
-            foreach(var k in this.Received.GetInvocationList())
-            {
-                this.Received -= new ReceiveDelegate(k as ReceiveDelegate);
-            }
-            this.tcpClient.Close();
         }
     }
 }
