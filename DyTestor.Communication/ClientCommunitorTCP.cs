@@ -45,11 +45,7 @@ namespace DyTestor.Communication
                         reply = ping.Send(AppConfig.SCANER_IP);
                     }
                     this.tcpClient = null;
-                    this.tcpClient = new TcpClient()
-                    {
-                        ReceiveTimeout = 20000                        
-                        
-                    };
+                    this.tcpClient = new TcpClient();
                     this.connect();
                 }
             }).Start();
