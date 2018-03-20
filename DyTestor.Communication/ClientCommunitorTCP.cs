@@ -90,8 +90,7 @@ namespace DyTestor.Communication
         {
             try
             {
-                AsyncCallback asyncCallback = new AsyncCallback(connectCallback);
-                IAsyncResult result = this.tcpClient.BeginConnect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT, new AsyncCallback(connectCallback), null);
+                this.tcpClient.BeginConnect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT, new AsyncCallback(connectCallback), this.tcpClient);
 
                 //this.OnConnect?.Invoke();
                 
@@ -106,7 +105,8 @@ namespace DyTestor.Communication
 
         private void connectCallback(IAsyncResult ar)
         {
-            this.tcpClient.EndConnect(ar);
+            TcpClient client = (TcpClient)ar.AsyncState;
+            client.EndConnect(ar);
             this.connected = true;
 
             this.Send(Encoding.ASCII.GetBytes("LON\r"));
@@ -140,10 +140,13 @@ namespace DyTestor.Communication
         {
                 try
                 {
-                  this.tcpClient.Client.BeginSend(data,0,data.Length,SocketFlags.None,new AsyncCallback(sendCallback),null);                      
+                    NetworkStream ns = this.tcpClient.GetStream();
+                ns.Write(data, 0, data.Length);
+                    //ns.BeginWrite(data, 0, data.Length, new AsyncCallback(sendCallback), this.tcpClient);
                 }
                 catch (Exception ex)
                 {
+                    
                     this.connected = false;
                     this.Error?.Invoke(this, new DyEventArgs() { Message = ex.Message + "send" });
                 }
@@ -151,9 +154,12 @@ namespace DyTestor.Communication
         
         private void sendCallback(IAsyncResult ar)
         {
+
             try
             {
-                this.tcpClient.Client.EndSend(ar);
+                TcpClient client = (TcpClient)ar.AsyncState;
+                NetworkStream ns = client.GetStream();
+                ns.EndWrite(ar);
             }catch(Exception ex)
             {
                 this.Error?.Invoke(this,new DyEventArgs(){Message=ex.Message});
