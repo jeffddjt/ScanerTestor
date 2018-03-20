@@ -22,12 +22,18 @@ namespace DyTestor.Communication
         {
             new Thread(() =>
             {
-                Ping ping = new Ping();
-                string data = "ping test data";
-                byte[] buf = Encoding.ASCII.GetBytes(data);
-                PingReply reply = ping.Send(AppConfig.SCANER_IP);
-                while (reply.Status != IPStatus.Success)
-                {                    
+
+                while (true)
+                {
+                    Ping ping = new Ping();
+                    string data = "ping test data";
+                    byte[] buf = Encoding.ASCII.GetBytes(data);
+                    PingReply reply = ping.Send(AppConfig.SCANER_IP);
+                    if(reply.Status != IPStatus.Success)
+                    {
+                        continue;
+                        
+                    }
                     if (connected)
                         continue;                    
                     try
@@ -41,7 +47,7 @@ namespace DyTestor.Communication
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient();
                     this.connect();
-                    reply = ping.Send(AppConfig.SCANER_IP);
+                    
                 }
             }).Start();
 
