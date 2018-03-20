@@ -41,12 +41,13 @@ namespace DyTestor.Communication
                     {
                         NetworkStream ns = this.tcpClient.GetStream();
                         ns.Close();
-                        this.tcpClient.Client.Close();
+                        this.tcpClient.Client.Close(0);
                         this.tcpClient.Close();
                     }
                     catch { }
                     this.tcpClient = null;
                     this.tcpClient = new TcpClient();
+                    Thread.Sleep(3000);
                     this.connect();
                     
                 }
