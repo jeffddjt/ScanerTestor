@@ -92,9 +92,9 @@ namespace DyTestor.Communication
             {
                 AsyncCallback asyncCallback = new AsyncCallback(connectCallback);
                 IAsyncResult result = this.tcpClient.BeginConnect(AppConfig.SCANER_IP, AppConfig.SCANER_PORT, new AsyncCallback(connectCallback), null);
-                this.tcpClient.EndConnect(result);
-                this.connected = true;
-                this.OnConnect?.Invoke();
+
+                //this.OnConnect?.Invoke();
+                
 
 
             }catch(Exception ex)
@@ -106,8 +106,11 @@ namespace DyTestor.Communication
 
         private void connectCallback(IAsyncResult ar)
         {
-            if (!this.connected)
-                return;
+            this.tcpClient.EndConnect(ar);
+            this.connected = true;
+
+            this.Send(Encoding.ASCII.GetBytes("LON\r"));
+
             int readbytes = 0;
             byte[] buf = new byte[65536];
             do
