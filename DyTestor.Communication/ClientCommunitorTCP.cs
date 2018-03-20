@@ -32,6 +32,7 @@ namespace DyTestor.Communication
                     if(reply.Status != IPStatus.Success)
                     {
                         this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
+                        this.connected = false;
                         continue;
                         
                     }
