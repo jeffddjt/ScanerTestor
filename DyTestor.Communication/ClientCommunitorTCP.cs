@@ -31,6 +31,7 @@ namespace DyTestor.Communication
                     PingReply reply = ping.Send(AppConfig.SCANER_IP);
                     if(reply.Status != IPStatus.Success)
                     {
+                        this.Error?.Invoke(this, new DyEventArgs() { Message = "The Scaner has offline!" });
                         continue;
                         
                     }
