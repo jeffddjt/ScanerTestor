@@ -21,6 +21,8 @@
   <ItemGroup>
     <ProjectReference Include="..\DyTestor.Communication\DyTestor.Communication.csproj" />
     <ProjectReference Include="..\DyTestor.Configuration\DyTestor.Configuration.csproj" />
+    <ProjectReference Include="..\DyTestor.Infrastructure\DyTestor.Infrastructure.csproj" />
+    <ProjectReference Include="..\DyTestor.SericeContracts\DyTestor.ServiceContracts.csproj" />
   </ItemGroup>
 
 </Project>

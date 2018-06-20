@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace DyTestor.Repositories.Repository
 {
@@ -17,18 +18,18 @@ namespace DyTestor.Repositories.Repository
             this.context.Database.Migrate();
         }
 
-        public IEnumerable<TAggregateRoot> GetAll()
+        public IQueryable<TAggregateRoot> GetAll()
         {
-            return this.context.Set<TAggregateRoot>();
+            return this.context.Set<TAggregateRoot>().AsNoTracking();
         }
 
-        public void Add(TAggregateRoot agg)
+        public async Task Add(TAggregateRoot agg)
         {
-           this.context.Set<TAggregateRoot>().Add(agg);
+          await this.context.Set<TAggregateRoot>().AddAsync(agg);
         }
-        public int Commit()
+        public async Task<int> Commit()
         {
-           return this.context.SaveChanges();
+           return await this.context.SaveChangesAsync();
         }
 
     }

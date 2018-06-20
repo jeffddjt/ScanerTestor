@@ -20,9 +20,9 @@ namespace DyTestor.Cloud.Controllers
         {
             this.qrcodeService = ServiceLocator.GetService<IQRCodeService>();
         }
-        public QRCodeDataObject Add(QRCodeDataObject data)
+        public async Task<QRCodeDataObject> Add(QRCodeDataObject data)
         {
-            return this.qrcodeService.Add(data);
+            return await this.qrcodeService.Add(data);
         }
     }
 }

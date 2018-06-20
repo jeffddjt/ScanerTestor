@@ -92,9 +92,10 @@ namespace DyTestor.Service
             code.Code = str;
             code.AssemblyLine = AppConfig.ASSEMBLY_LINE;
             code.CreateTime = DateTime.Now;
-            Console.WriteLine(code.ToURLParameter());
-            byte[] data = Encoding.UTF8.GetBytes(code.ToURLParameter());
-            httpCommunicator.Send(data);
+            qrCodeService.Add(code);
+            //Console.WriteLine(code.ToURLParameter());
+            //byte[] data = Encoding.UTF8.GetBytes(code.ToURLParameter());
+            //httpCommunicator.Send(data);
 
         }
 
