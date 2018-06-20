@@ -13,7 +13,7 @@ namespace DyTestor.Repositories.DAO
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(AppConfig.DBCONNECTIONSTRING);
+            optionsBuilder.UseSqlServer(AppConfig.DBCONNECTIONSTRING,b=>b.UseRowNumberForPaging());
             base.OnConfiguring(optionsBuilder);
         }
     }

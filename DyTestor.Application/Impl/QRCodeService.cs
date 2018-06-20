@@ -38,10 +38,13 @@ namespace DyTestor.Application.Impl
         }
         public List<QRCodeDataObject> GetList(int pageNo,int pageSize,out int pageCount,out int total)
         {
+          
             var query = this.repository.GetAll();
             total = query.Count();
             pageCount = (total+pageSize-1) / pageSize;
-            IQueryable<QRCode> list = this.repository.GetAll().OrderBy(p => p.CreateTime).Skip((pageNo - 1) * pageSize).Take(pageSize);
+            if(total<=0)
+                 return DyMapper.Map<List<QRCode>,List<QRCodeDataObject>>(query.ToList());
+            IQueryable<QRCode> list = query.OrderBy(p => p.CreateTime).Skip((pageNo - 1) * pageSize).Take(pageSize);
 
             return DyMapper.Map<List<QRCode>, List<QRCodeDataObject>>(list.ToList());
         }
